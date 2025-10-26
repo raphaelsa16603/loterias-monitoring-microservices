@@ -46,12 +46,11 @@ services:
       MongoDB__ConnectionString: "mongodb://mongodb:27017"
       MongoDB__Database: "Loterias"
       Redis__ConnectionString: "redis:6379"
-    # Temporariamente sem healthcheck (para não travar o startup)
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 10
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 
   tests:
