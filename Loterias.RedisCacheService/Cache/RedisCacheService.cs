@@ -1,3 +1,4 @@
+// Loterias.RedisCacheService/Cache/RedisCacheService.cs
 using Loterias.Shared.Interfaces;
 using Newtonsoft.Json;
 using StackExchange.Redis;
@@ -8,9 +9,9 @@ public class RedisCacheService : ICacheService
 {
     private readonly IDatabase _db;
 
-    public RedisCacheService(IConnectionMultiplexer redis)
+    public RedisCacheService(IConnectionMultiplexer multiplexer)
     {
-        _db = redis.GetDatabase();
+        _db = multiplexer.GetDatabase();
     }
 
     public async Task<T?> GetAsync<T>(string key)
