@@ -10,7 +10,8 @@ public class QueryApiIntegrationTests
     public async Task GetByNumero_DeveRetornarStatusCode200()
     {
         using var client = new HttpClient();
-        var response = await client.GetAsync("http://localhost:5000/api/sorteios/MEGA_SENA/1234");
+        var baseUrl = Environment.GetEnvironmentVariable("API_URL") ?? "http://localhost:5341";
+        var response = await client.GetAsync($"{baseUrl}/api/sorteios/MEGA_SENA/1234");
 
         Assert.True(response.IsSuccessStatusCode);
     }

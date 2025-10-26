@@ -16,4 +16,9 @@
     <PackageReference Include="StackExchange.Redis" Version="2.9.32" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
+	<!-- 🚫 Evita conflito de appsettings.json vindos das dependências -->
+	<ItemGroup>
+		<Content Remove="..\**\appsettings.json" />
+		<Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
 </Project>

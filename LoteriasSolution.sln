@@ -2,16 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.JobControlService", "Loterias.JobControlService\Loterias.JobControlService.csproj", "{AAAA1111-0000-0000-0000-000000000001}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CollectorDailyService", "Loterias.CollectorDailyService\Loterias.CollectorDailyService.csproj", "{AAAA1111-0000-0000-0000-000000000002}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CollectorHistoricalService", "Loterias.CollectorHistoricalService\Loterias.CollectorHistoricalService.csproj", "{AAAA1111-0000-0000-0000-000000000003}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.MonitoringWebApp", "Loterias.MonitoringWebApp\Loterias.MonitoringWebApp.csproj", "{AAAA1111-0000-0000-0000-000000000004}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.LoggingService", "Loterias.LoggingService\Loterias.LoggingService.csproj", "{4E076AE4-8503-3915-7C1F-EC455C94EBC9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.QueryApiService", "Loterias.QueryApiService\Loterias.QueryApiService.csproj", "{56E8BEC2-EF76-7BA4-DEE8-335E3ACED47F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.RedisCacheService", "Loterias.RedisCacheService\Loterias.RedisCacheService.csproj", "{7D8A09F4-0A74-FCE3-2A40-FFCAFA1D813C}"
@@ -28,26 +18,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AAAA1111-0000-0000-0000-000000000001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAAA1111-0000-0000-0000-000000000001}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAAA1111-0000-0000-0000-000000000001}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAAA1111-0000-0000-0000-000000000001}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AAAA1111-0000-0000-0000-000000000002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAAA1111-0000-0000-0000-000000000002}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAAA1111-0000-0000-0000-000000000002}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAAA1111-0000-0000-0000-000000000002}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AAAA1111-0000-0000-0000-000000000003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAAA1111-0000-0000-0000-000000000003}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAAA1111-0000-0000-0000-000000000003}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAAA1111-0000-0000-0000-000000000003}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AAAA1111-0000-0000-0000-000000000004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAAA1111-0000-0000-0000-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAAA1111-0000-0000-0000-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAAA1111-0000-0000-0000-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4E076AE4-8503-3915-7C1F-EC455C94EBC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4E076AE4-8503-3915-7C1F-EC455C94EBC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4E076AE4-8503-3915-7C1F-EC455C94EBC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4E076AE4-8503-3915-7C1F-EC455C94EBC9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{56E8BEC2-EF76-7BA4-DEE8-335E3ACED47F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{56E8BEC2-EF76-7BA4-DEE8-335E3ACED47F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56E8BEC2-EF76-7BA4-DEE8-335E3ACED47F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -71,5 +41,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1B620A0A-6421-46E5-A925-43DBAA039B1A}
 	EndGlobalSection
 EndGlobal

@@ -5,4 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>Library</OutputType>
   </PropertyGroup>
+    <ItemGroup>
+	    <None Update="appsettings.json">
+		    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	    </None>
+    </ItemGroup>
 </Project>

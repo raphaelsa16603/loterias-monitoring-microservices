@@ -1,0 +1,72 @@
+# docker-compose.tests.yml (sem "version:")
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: loterias_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7.2
+    container_name: loterias_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  loterias-api:
+    build:
+      context: .
+      dockerfile: Loterias.QueryApiService/Dockerfile
+    container_name: loterias_query_api
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://0.0.0.0:8080"
+      MongoDB__ConnectionString: "mongodb://mongodb:27017"
+      MongoDB__Database: "Loterias"
+      Redis__ConnectionString: "redis:6379"
+    healthcheck:
+      # Se tiver endpoint /health (veja abaixo), é melhor usar ele:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/swagger/v1/swagger.json >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  tests:
+    build:
+      context: .
+      dockerfile: Loterias.Tests.Integration/Dockerfile
+    container_name: loterias_tests_integration
+    depends_on:
+      loterias-api:
+        condition: service_healthy
+    environment:
+      # IMPORTANT: use o NOME DO SERVIÇO (DNS interno do Compose)
+      API_URL: "http://loterias-api:8080"
+    # NÃO sobrescreva o comando: deixe o ENTRYPOINT do Dockerfile executar "dotnet test"
+    # command: [ ... ]  <-- Removido
+
+volumes:
+  mongo_data:
+  redis_data:

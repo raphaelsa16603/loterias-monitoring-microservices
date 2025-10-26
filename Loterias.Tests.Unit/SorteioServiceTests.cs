@@ -14,10 +14,11 @@ public class SorteioServiceTests
     {
         // Arrange
         var mockRepo = new Mock<ISorteioRepository>();
+        var mockCache = new Mock<ICacheService>();
         mockRepo.Setup(x => x.ObterPorNumeroAsync("MEGA_SENA", 1234))
                 .ReturnsAsync(new Sorteio { NumeroJogo = 1234, TipoJogo = "MEGA_SENA" });
 
-        var service = new SorteioService(mockRepo.Object);
+        var service = new SorteioService(mockRepo.Object, mockCache.Object);
 
         // Act
         var result = await service.ObterPorNumeroAsync("MEGA_SENA", 1234);
