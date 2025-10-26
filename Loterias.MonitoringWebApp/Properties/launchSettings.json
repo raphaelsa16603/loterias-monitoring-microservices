@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Loterias.MonitoringWebApp": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:43889;http://localhost:43892"
+    }
+  }
+}

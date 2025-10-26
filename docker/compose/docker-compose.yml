@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  seq:
+    image: datalust/seq
+    container_name: seq
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "5341:80"
+
+  jobcontrol:
+    build:
+      context: ../Loterias.JobControlService
+    container_name: jobcontrol
+    ports:
+      - "5005:80"
+
+  collectordaily:
+    build:
+      context: ../Loterias.CollectorDailyService
+    container_name: collectordaily
+    ports:
+      - "5011:80"
+
+  collectorhistorical:
+    build:
+      context: ../Loterias.CollectorHistoricalService
+    container_name: collectorhistorical
+    ports:
+      - "5012:80"
+
+  monitoring:
+    build:
+      context: ../Loterias.MonitoringWebApp
+    container_name: monitoring
+    ports:
+      - "5010:80"

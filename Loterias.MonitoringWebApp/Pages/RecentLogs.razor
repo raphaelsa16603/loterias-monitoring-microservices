@@ -1,0 +1,26 @@
+@inject Loterias.MonitoringWebApp.Services.SeqLogService LogService
+
+<h3>Logs Recentes</h3>
+
+@if (logs == null)
+{
+    <p>Carregando logs...</p>
+}
+else
+{
+    <ul>
+        @foreach (var item in logs.Value.GetProperty("Events").EnumerateArray())
+        {
+            <li>@item.GetProperty("MessageTemplate").GetString()</li>
+        }
+    </ul>
+}
+
+@code {
+    private JsonElement? logs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        logs = await LogService.ObterLogsRecentesAsync();
+    }
+}

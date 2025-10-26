@@ -1,0 +1,39 @@
+@inject Loterias.MonitoringWebApp.Services.SorteioService SorteioService
+
+<h3>Últimos Sorteios</h3>
+
+@if (sorteios == null)
+{
+    <p>Carregando sorteios...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Número</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in sorteios)
+            {
+                <tr>
+                    <td>@s.TipoJogo</td>
+                    <td>@s.NumeroJogo</td>
+                    <td>@s.DataJogo</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Loterias.Shared.Models.Sorteio>? sorteios;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sorteios = await SorteioService.ObterUltimosSorteiosAsync();
+    }
+}
