@@ -10,6 +10,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CollectorHistorica
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.MonitoringWebApp", "Loterias.MonitoringWebApp\Loterias.MonitoringWebApp.csproj", "{AAAA1111-0000-0000-0000-000000000004}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.LoggingService", "Loterias.LoggingService\Loterias.LoggingService.csproj", "{4E076AE4-8503-3915-7C1F-EC455C94EBC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.QueryApiService", "Loterias.QueryApiService\Loterias.QueryApiService.csproj", "{56E8BEC2-EF76-7BA4-DEE8-335E3ACED47F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.RedisCacheService", "Loterias.RedisCacheService\Loterias.RedisCacheService.csproj", "{7D8A09F4-0A74-FCE3-2A40-FFCAFA1D813C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Shared", "Loterias.Shared\Loterias.Shared.csproj", "{FCA81ABD-AA03-1FCE-D4F3-3AF735218AEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Tests.Integration", "Loterias.Tests.Integration\Loterias.Tests.Integration.csproj", "{CCC16BCB-FE66-0B46-4383-A0C84D1F9E06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Tests.Unit", "Loterias.Tests.Unit\Loterias.Tests.Unit.csproj", "{C444DA2E-7487-795F-8145-0569CBA9385E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,5 +44,32 @@ Global
 		{AAAA1111-0000-0000-0000-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAAA1111-0000-0000-0000-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAAA1111-0000-0000-0000-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E076AE4-8503-3915-7C1F-EC455C94EBC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E076AE4-8503-3915-7C1F-EC455C94EBC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E076AE4-8503-3915-7C1F-EC455C94EBC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E076AE4-8503-3915-7C1F-EC455C94EBC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56E8BEC2-EF76-7BA4-DEE8-335E3ACED47F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56E8BEC2-EF76-7BA4-DEE8-335E3ACED47F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56E8BEC2-EF76-7BA4-DEE8-335E3ACED47F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56E8BEC2-EF76-7BA4-DEE8-335E3ACED47F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D8A09F4-0A74-FCE3-2A40-FFCAFA1D813C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D8A09F4-0A74-FCE3-2A40-FFCAFA1D813C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D8A09F4-0A74-FCE3-2A40-FFCAFA1D813C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D8A09F4-0A74-FCE3-2A40-FFCAFA1D813C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCA81ABD-AA03-1FCE-D4F3-3AF735218AEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCA81ABD-AA03-1FCE-D4F3-3AF735218AEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCA81ABD-AA03-1FCE-D4F3-3AF735218AEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCA81ABD-AA03-1FCE-D4F3-3AF735218AEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCC16BCB-FE66-0B46-4383-A0C84D1F9E06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCC16BCB-FE66-0B46-4383-A0C84D1F9E06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCC16BCB-FE66-0B46-4383-A0C84D1F9E06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCC16BCB-FE66-0B46-4383-A0C84D1F9E06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C444DA2E-7487-795F-8145-0569CBA9385E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C444DA2E-7487-795F-8145-0569CBA9385E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C444DA2E-7487-795F-8145-0569CBA9385E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C444DA2E-7487-795F-8145-0569CBA9385E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Loterias.LoggingService": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:44107;http://localhost:44108"
+    }
+  }
+}

@@ -3,5 +3,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Loterias.RedisCacheService\Loterias.RedisCacheService.csproj" />
+    <ProjectReference Include="..\Loterias.Shared\Loterias.Shared.csproj" />
+  </ItemGroup>
 </Project>

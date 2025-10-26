@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Loterias.Tests.Unit": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:44137;http://localhost:44138"
+    }
+  }
+}
