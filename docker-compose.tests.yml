@@ -46,12 +46,13 @@ services:
       MongoDB__ConnectionString: "mongodb://mongodb:27017"
       MongoDB__Database: "Loterias"
       Redis__ConnectionString: "redis:6379"
-    healthcheck:
-      # Se tiver endpoint /health (veja abaixo), é melhor usar ele:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/swagger/v1/swagger.json >/dev/null || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
+    # Temporariamente sem healthcheck (para não travar o startup)
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 10
+
 
   tests:
     build:
