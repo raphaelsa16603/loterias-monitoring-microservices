@@ -69,10 +69,13 @@ services:
       loterias-api:
         condition: service_healthy
     environment:
-      # IMPORTANT: use o NOME DO SERVIÇO (DNS interno do Compose)
       API_URL: "http://loterias-api:8080"
-    # NÃO sobrescreva o comando: deixe o ENTRYPOINT do Dockerfile executar "dotnet test"
-    # command: [ ... ]  <-- Removido
+    volumes:
+      - ./TestResults:/testresults
+    # Remove o container automaticamente após rodar os testes
+    restart: "no"
+    entrypoint: ["dotnet", "test", "--logger:trx;LogFileName=test_results.trx", "--results-directory", "/testresults", "--no-build"]
+
 
 volumes:
   mongo_data:
