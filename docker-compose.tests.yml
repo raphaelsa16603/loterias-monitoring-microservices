@@ -6,8 +6,11 @@ services:
     restart: always
     ports:
       - "27017:27017"
+    # Mapeia a pasta local para o diretório de dados do MongoDB
     volumes:
-      - mongo_data:/data/db
+      - ./Database/MongoDB:/data/db
+    # volumes:
+    #  - mongo_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
@@ -20,8 +23,11 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    # Mapeia a pasta local para o diretório de dados do Redis
     volumes:
-      - redis_data:/data
+      - ./Database/Redis:/data
+    # volumes:
+    #   - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
