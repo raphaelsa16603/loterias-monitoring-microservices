@@ -29,24 +29,24 @@ jobs:
 
       # 🧱 Build Loterias.Shared
       - name: Restore dependencies (Loterias.Shared)
-        run: dotnet restore src/Core/Loterias.Shared/Loterias.Shared.csproj
+        run: dotnet restore Loterias.Shared/Loterias.Shared.csproj
 
       - name: Build Loterias.Shared
-        run: dotnet build src/Core/Loterias.Shared/Loterias.Shared.csproj --configuration Release --no-restore
+        run: dotnet build Loterias.Shared/Loterias.Shared.csproj --configuration Release --no-restore
 
       - name: Verify output (Shared)
         run: |
           echo "✅ Build concluído: Loterias.Shared"
-          ls -l src/Core/Loterias.Shared/bin/Release/net8.0/ || true
+          ls -l Loterias.Shared/bin/Release/net8.0/ || true
 
       # 🧩 Build Loterias.Logging.Common
       - name: Restore dependencies (Loterias.Logging.Common)
-        run: dotnet restore src/Core/Loterias.Logging.Common/Loterias.Logging.Common.csproj
+        run: dotnet restore Loterias.Logging.Common/Loterias.Logging.Common.csproj
 
       - name: Build Loterias.Logging.Common
-        run: dotnet build src/Core/Loterias.Logging.Common/Loterias.Logging.Common.csproj --configuration Release --no-restore
+        run: dotnet build Loterias.Logging.Common/Loterias.Logging.Common.csproj --configuration Release --no-restore
 
       - name: Verify output (Logging.Common)
         run: |
           echo "✅ Build concluído: Loterias.Logging.Common"
-          ls -l src/Core/Loterias.Logging.Common/bin/Release/net8.0/ || true
+          ls -l Loterias.Logging.Common/bin/Release/net8.0/ || true
