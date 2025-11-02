@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Tests.Integration"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Tests.Unit", "Loterias.Tests.Unit\Loterias.Tests.Unit.csproj", "{C444DA2E-7487-795F-8145-0569CBA9385E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Logging.Common", "Loterias.Logging.Common\Loterias.Logging.Common.csproj", "{84F64F70-E09D-4EF9-A334-2196B5EA9CF2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{C444DA2E-7487-795F-8145-0569CBA9385E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C444DA2E-7487-795F-8145-0569CBA9385E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C444DA2E-7487-795F-8145-0569CBA9385E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84F64F70-E09D-4EF9-A334-2196B5EA9CF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84F64F70-E09D-4EF9-A334-2196B5EA9CF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84F64F70-E09D-4EF9-A334-2196B5EA9CF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84F64F70-E09D-4EF9-A334-2196B5EA9CF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

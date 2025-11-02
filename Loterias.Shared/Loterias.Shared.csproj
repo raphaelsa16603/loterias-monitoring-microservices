@@ -13,4 +13,7 @@
     <ItemGroup>
       <PackageReference Include="MongoDB.Bson" Version="3.5.0" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Loterias.Logging.Common\Loterias.Logging.Common.csproj" />
+    </ItemGroup>
 </Project>

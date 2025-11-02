@@ -1,11 +1,12 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using Loterias.Logging.Common.Interfaces;
 
 namespace Loterias.Shared.Utils
 {
     public static class HashHelper
     {
-        public static string ComputeHash(string input)
+        public static string ComputeHash(string input, IStructuredLogger? logger = null)
         {
             try
             {
@@ -15,7 +16,7 @@ namespace Loterias.Shared.Utils
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[HashHelper] Erro ao gerar hash: {ex.Message}");
+                logger?.Error("[HashHelper] Erro ao gerar hash", ex, new { Input = input });
                 return string.Empty;
             }
         }
