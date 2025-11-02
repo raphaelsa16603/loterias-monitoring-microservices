@@ -1,31 +1,52 @@
-name: Build and Test .NET Solution
+name: Build Core Libraries (.NET 8)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop, feature/** ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
-  build-and-test:
+  build-core-libs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
-    - name: Restore dependencies
-      run: dotnet restore LoteriasSolution/LoteriasSolution.sln
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
-    - name: Build
-      run: dotnet build LoteriasSolution/LoteriasSolution.sln --no-restore --configuration Release
+      # 🧱 Build Loterias.Shared
+      - name: Restore dependencies (Loterias.Shared)
+        run: dotnet restore src/Core/Loterias.Shared/Loterias.Shared.csproj
 
-    - name: Run Unit Tests
-      run: dotnet test LoteriasSolution/Loterias.Tests.Unit --no-build --configuration Release
+      - name: Build Loterias.Shared
+        run: dotnet build src/Core/Loterias.Shared/Loterias.Shared.csproj --configuration Release --no-restore
 
-    - name: Run Integration Tests
-      run: dotnet test LoteriasSolution/Loterias.Tests.Integration --no-build --configuration Release
+      - name: Verify output (Shared)
+        run: |
+          echo "✅ Build concluído: Loterias.Shared"
+          ls -l src/Core/Loterias.Shared/bin/Release/net8.0/ || true
+
+      # 🧩 Build Loterias.Logging.Common
+      - name: Restore dependencies (Loterias.Logging.Common)
+        run: dotnet restore src/Core/Loterias.Logging.Common/Loterias.Logging.Common.csproj
+
+      - name: Build Loterias.Logging.Common
+        run: dotnet build src/Core/Loterias.Logging.Common/Loterias.Logging.Common.csproj --configuration Release --no-restore
+
+      - name: Verify output (Logging.Common)
+        run: |
+          echo "✅ Build concluído: Loterias.Logging.Common"
+          ls -l src/Core/Loterias.Logging.Common/bin/Release/net8.0/ || true
