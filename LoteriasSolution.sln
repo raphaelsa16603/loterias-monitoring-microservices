@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Tests.Unit", "Lote
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Logging.Common", "Loterias.Logging.Common\Loterias.Logging.Common.csproj", "{84F64F70-E09D-4EF9-A334-2196B5EA9CF2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CaixaClientLib", "Loterias.CaixaClientLib\Loterias.CaixaClientLib.csproj", "{9EC8A929-F19F-49F1-B9A6-10F71183BFD7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{84F64F70-E09D-4EF9-A334-2196B5EA9CF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84F64F70-E09D-4EF9-A334-2196B5EA9CF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84F64F70-E09D-4EF9-A334-2196B5EA9CF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EC8A929-F19F-49F1-B9A6-10F71183BFD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EC8A929-F19F-49F1-B9A6-10F71183BFD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EC8A929-F19F-49F1-B9A6-10F71183BFD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EC8A929-F19F-49F1-B9A6-10F71183BFD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
