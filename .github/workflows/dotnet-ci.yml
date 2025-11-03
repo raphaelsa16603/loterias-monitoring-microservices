@@ -77,3 +77,21 @@ jobs:
         run: |
           echo "✅ Build concluído: Loterias.CaixaClientLib"
           ls -l Loterias.CaixaClientLib/bin/Release/net8.0/ || true
+
+
+      # 🚀 Build Loterias.Messaging (Kafka Abstraction)
+      - name: Clean previous build (Messaging)
+        run: |
+          echo "🧹 Limpando pastas anteriores..."
+          rm -rf Loterias.Messaging/bin Loterias.Messaging/obj || true
+
+      - name: Restore dependencies (Loterias.Messaging)
+        run: dotnet restore Loterias.Messaging/Loterias.Messaging.csproj
+
+      - name: Build Loterias.Messaging
+        run: dotnet build Loterias.Messaging/Loterias.Messaging.csproj --configuration Release --no-restore
+
+      - name: Verify output (Messaging)
+        run: |
+          echo "✅ Build concluído: Loterias.Messaging"
+          ls -l Loterias.Messaging/bin/Release/net8.0/ || true
