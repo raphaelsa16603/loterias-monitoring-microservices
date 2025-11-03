@@ -4,15 +4,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 using Loterias.Messaging.Interfaces;
+using Loterias.Logging.Common.Interfaces;
 
 namespace Loterias.Messaging.Kafka
 {
     public class KafkaProducer : IMessageProducer, IDisposable
     {
         private readonly IProducer<string, string> _producer;
+        private readonly IStructuredLogger _logger;
 
-        public KafkaProducer(KafkaSettings settings)
+        public KafkaProducer(KafkaSettings settings, IStructuredLogger logger)
         {
+            _logger = logger;
+
             try
             {
                 var config = new ProducerConfig
@@ -23,9 +27,11 @@ namespace Loterias.Messaging.Kafka
                 };
 
                 _producer = new ProducerBuilder<string, string>(config).Build();
+                _logger.Info($"KafkaProducer inicializado com sucesso em {config.BootstrapServers}");
             }
             catch (Exception ex)
             {
+                _logger.Error("Falha ao inicializar KafkaProducer", ex);
                 throw new InvalidOperationException($"Falha ao inicializar KafkaProducer: {ex.Message}", ex);
             }
         }
@@ -42,20 +48,24 @@ namespace Loterias.Messaging.Kafka
                 };
 
                 await _producer.ProduceAsync(topic, kafkaMessage, ct);
+                _logger.Info($"Mensagem publicada no tópico '{topic}'", new { topic, message });
             }
             catch (ProduceException<string, string> ex)
             {
-                // Erros típicos de rede, timeout ou broker
-                Console.Error.WriteLine($"[KafkaProducer] Erro ao publicar no tópico '{topic}': {ex.Error.Reason}");
+                _logger.Error($"Erro ao publicar no tópico '{topic}': {ex.Error.Reason}", ex);
                 throw;
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"[KafkaProducer] Erro inesperado: {ex.Message}");
+                _logger.Error($"Erro inesperado ao publicar no tópico '{topic}'", ex);
                 throw;
             }
         }
 
-        public void Dispose() => _producer?.Dispose();
+        public void Dispose()
+        {
+            _producer?.Dispose();
+            _logger.Info("KafkaProducer encerrado.");
+        }
     }
 }
