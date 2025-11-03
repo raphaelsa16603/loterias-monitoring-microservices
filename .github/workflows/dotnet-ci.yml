@@ -28,6 +28,11 @@ jobs:
             ${{ runner.os }}-nuget-
 
       # 🧱 Build Loterias.Shared
+      - name: Clean previous build (Shared)
+        run: |
+          echo "🧹 Limpando pastas anteriores..."
+          rm -rf Loterias.Shared/bin Loterias.Shared/obj || true
+
       - name: Restore dependencies (Loterias.Shared)
         run: dotnet restore Loterias.Shared/Loterias.Shared.csproj
 
@@ -40,6 +45,11 @@ jobs:
           ls -l Loterias.Shared/bin/Release/net8.0/ || true
 
       # 🧩 Build Loterias.Logging.Common
+      - name: Clean previous build (Logging.Common)
+        run: |
+          echo "🧹 Limpando pastas anteriores..."
+          rm -rf Loterias.Logging.Common/bin Loterias.Logging.Common/obj || true
+
       - name: Restore dependencies (Loterias.Logging.Common)
         run: dotnet restore Loterias.Logging.Common/Loterias.Logging.Common.csproj
 
@@ -51,8 +61,12 @@ jobs:
           echo "✅ Build concluído: Loterias.Logging.Common"
           ls -l Loterias.Logging.Common/bin/Release/net8.0/ || true
 
-
       # 🎯 Build Loterias.CaixaClientLib
+      - name: Clean previous build (CaixaClientLib)
+        run: |
+          echo "🧹 Limpando pastas anteriores..."
+          rm -rf Loterias.CaixaClientLib/bin Loterias.CaixaClientLib/obj || true
+
       - name: Restore dependencies (Loterias.CaixaClientLib)
         run: dotnet restore Loterias.CaixaClientLib/Loterias.CaixaClientLib.csproj
 
