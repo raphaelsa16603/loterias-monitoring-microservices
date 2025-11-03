@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Loterias.Logging.Common\Loterias.Logging.Common.csproj" />
+  </ItemGroup>
+
 </Project>
