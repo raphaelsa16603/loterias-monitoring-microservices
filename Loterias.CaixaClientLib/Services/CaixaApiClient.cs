@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Json;
-using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Loterias.CaixaClientLib.Config;
@@ -7,7 +6,7 @@ using Loterias.CaixaClientLib.Enums;
 using Loterias.CaixaClientLib.Exceptions;
 using Loterias.CaixaClientLib.Interfaces;
 using Loterias.CaixaClientLib.Models;
-using Loterias.CaixaClientLib.Services.Internal; // compat helper
+using Loterias.Logging.Common.Interfaces;
 
 namespace Loterias.CaixaClientLib.Services
 {
@@ -16,23 +15,16 @@ namespace Loterias.CaixaClientLib.Services
         private readonly HttpClient _httpClient;
         private readonly CaixaSettings _settings;
         private readonly CaixaEndpointsProvider _endpoints;
-
-        // Logger comum (fallback) + structured (principal)
-        private readonly ILogger<CaixaApiClient>? _logger;
-        private readonly object? _structuredLogger; // não tipar para evitar acoplamento
+        private readonly IStructuredLogger _logger;
 
         public CaixaApiClient(
             HttpClient httpClient,
             IOptions<CaixaSettings> settings,
-            // structuredLogger vem da sua Loterias.Logging.Common (qualquer tipo/iface)
-            object? structuredLogger = null,
-            ILogger<CaixaApiClient>? logger = null)
+            IStructuredLogger logger)
         {
             _httpClient = httpClient;
             _settings = settings.Value;
-            _structuredLogger = structuredLogger;
             _logger = logger;
-
             _endpoints = new CaixaEndpointsProvider(_settings.BaseUrl);
 
             _httpClient.Timeout = TimeSpan.FromSeconds(_settings.TimeoutSeconds);
@@ -70,10 +62,9 @@ namespace Loterias.CaixaClientLib.Services
 
                     if (_settings.EnableLogging)
                     {
-                        await LoggingCompat.SafeLogAsync(_structuredLogger, _logger,
-                            level: "INFO",
-                            message: $"Sucesso ao consultar {targetUrl} ({data?.TipoJogo}) Concurso {data?.NumeroConcurso}",
-                            data: new
+                        _logger.Info(
+                            $"✅ Sucesso ao consultar {targetUrl}",
+                            new
                             {
                                 Tipo = data?.TipoJogo,
                                 Concurso = data?.NumeroConcurso,
@@ -85,19 +76,16 @@ namespace Loterias.CaixaClientLib.Services
                 }
                 catch (Exception ex)
                 {
-                    await LoggingCompat.SafeLogAsync(_structuredLogger, _logger,
-                        level: "WARN",
-                        message: $"Tentativa {attempt}/{_settings.RetryCount} falhou ao acessar {url}",
-                        data: new { Url = url, Tentativa = attempt },
-                        exception: ex);
+                    _logger.Warn(
+                        $"Tentativa {attempt}/{_settings.RetryCount} falhou ao acessar {url}",
+                        new { Url = url, Tentativa = attempt, Erro = ex.Message });
 
                     if (attempt == _settings.RetryCount)
                     {
-                        await LoggingCompat.SafeLogAsync(_structuredLogger, _logger,
-                            level: "ERROR",
-                            message: $"Falha definitiva após {attempt} tentativas",
-                            exception: ex);
-
+                        _logger.Error(
+                            $"❌ Falha definitiva após {attempt} tentativas em {url}",
+                            ex,
+                            new { Url = url, Tentativa = attempt });
                         throw;
                     }
 
