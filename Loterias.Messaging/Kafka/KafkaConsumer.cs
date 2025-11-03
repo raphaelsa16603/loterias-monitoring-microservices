@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
-using System.Threading;
 using Loterias.Messaging.Interfaces;
 
 namespace Loterias.Messaging.Kafka
@@ -19,7 +16,8 @@ namespace Loterias.Messaging.Kafka
             {
                 BootstrapServers = settings.BootstrapServers,
                 GroupId = settings.GroupId,
-                AutoOffsetReset = AutoOffsetReset.Earliest
+                AutoOffsetReset = AutoOffsetReset.Earliest,
+                EnableAutoCommit = true
             };
         }
 
@@ -27,12 +25,28 @@ namespace Loterias.Messaging.Kafka
         {
             using var consumer = new ConsumerBuilder<Ignore, string>(_config).Build();
             consumer.Subscribe(topic);
-            while (!ct.IsCancellationRequested)
+
+            try
             {
-                var result = consumer.Consume(ct);
-                await handler(result.Message.Value);
+                while (!ct.IsCancellationRequested)
+                {
+                    try
+                    {
+                        var result = consumer.Consume(ct);
+                        if (result?.Message?.Value != null)
+                            await handler(result.Message.Value);
+                    }
+                    catch (ConsumeException ex)
+                    {
+                        Console.Error.WriteLine($"[KafkaConsumer] Erro ao consumir tópico '{topic}': {ex.Error.Reason}");
+                        await Task.Delay(2000, ct); // retry leve
+                    }
+                }
+            }
+            finally
+            {
+                consumer.Close();
             }
         }
     }
 }
-

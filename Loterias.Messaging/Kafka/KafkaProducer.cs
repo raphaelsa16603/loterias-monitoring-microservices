@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
-using System.Text.Json;
 using Loterias.Messaging.Interfaces;
 
 namespace Loterias.Messaging.Kafka
@@ -15,17 +13,49 @@ namespace Loterias.Messaging.Kafka
 
         public KafkaProducer(KafkaSettings settings)
         {
-            var config = new ProducerConfig { BootstrapServers = settings?.BootstrapServers ?? "localhost:9092" };
-            _producer = new ProducerBuilder<string, string>(config).Build();
+            try
+            {
+                var config = new ProducerConfig
+                {
+                    BootstrapServers = settings?.BootstrapServers ?? "localhost:9092",
+                    Acks = Acks.All,
+                    MessageTimeoutMs = 5000
+                };
+
+                _producer = new ProducerBuilder<string, string>(config).Build();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Falha ao inicializar KafkaProducer: {ex.Message}", ex);
+            }
         }
 
         public async Task PublishAsync<T>(string topic, T message, CancellationToken ct = default)
         {
-            var json = JsonSerializer.Serialize(message);
-            await _producer.ProduceAsync(topic, new Message<string, string> { Key = Guid.NewGuid().ToString(), Value = json }, ct);
+            try
+            {
+                var json = JsonSerializer.Serialize(message);
+                var kafkaMessage = new Message<string, string>
+                {
+                    Key = Guid.NewGuid().ToString(),
+                    Value = json
+                };
+
+                await _producer.ProduceAsync(topic, kafkaMessage, ct);
+            }
+            catch (ProduceException<string, string> ex)
+            {
+                // Erros típicos de rede, timeout ou broker
+                Console.Error.WriteLine($"[KafkaProducer] Erro ao publicar no tópico '{topic}': {ex.Error.Reason}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[KafkaProducer] Erro inesperado: {ex.Message}");
+                throw;
+            }
         }
 
         public void Dispose() => _producer?.Dispose();
     }
 }
-
