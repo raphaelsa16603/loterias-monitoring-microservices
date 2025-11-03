@@ -50,3 +50,16 @@ jobs:
         run: |
           echo "✅ Build concluído: Loterias.Logging.Common"
           ls -l Loterias.Logging.Common/bin/Release/net8.0/ || true
+
+
+      # 🎯 Build Loterias.CaixaClientLib
+      - name: Restore dependencies (Loterias.CaixaClientLib)
+        run: dotnet restore Loterias.CaixaClientLib/Loterias.CaixaClientLib.csproj
+
+      - name: Build Loterias.CaixaClientLib
+        run: dotnet build Loterias.CaixaClientLib/Loterias.CaixaClientLib.csproj --configuration Release --no-restore
+
+      - name: Verify output (CaixaClientLib)
+        run: |
+          echo "✅ Build concluído: Loterias.CaixaClientLib"
+          ls -l Loterias.CaixaClientLib/bin/Release/net8.0/ || true
