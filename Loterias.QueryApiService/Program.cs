@@ -6,6 +6,7 @@ using Loterias.Shared.Interfaces;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using StackExchange.Redis;
+using Prometheus;
 
 namespace Loterias.QueryApiService;
 
@@ -57,6 +58,8 @@ public class Program
         app.MapControllers();
 
         app.MapGet("/health", () => Results.Ok("OK"));
+
+        app.MapMetrics(); // Prometheus metrics endpoint // expõe /metrics
 
         app.Run();
     }

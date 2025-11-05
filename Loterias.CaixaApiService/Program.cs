@@ -11,6 +11,7 @@ using StackExchange.Redis;
 using Polly;
 using Polly.Extensions.Http;               // ✅ necessário para AddTransientHttpErrorPolicy
 using Serilog;
+using Prometheus;                           // Para métricas Prometheus
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.AspNetCore; // Adicione este using para acessar o método de extensão UseSerilogRequestLogging
@@ -81,6 +82,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseEndpoints(endpoints =>
+{
+    _ = endpoints.MapMetrics(); // expõe /metrics
+});
+
+app.MapHealthChecks("/healthz");
+
 
 app.UseSerilogRequestLogging();
 app.MapControllers();
