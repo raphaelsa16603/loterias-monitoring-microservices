@@ -60,6 +60,7 @@ public class Program
         app.MapGet("/health", () => Results.Ok("OK"));
 
         app.MapMetrics(); // Prometheus metrics endpoint // expõe /metrics
+        app.MapHealthChecks("/healthz");
 
         app.Run();
     }
