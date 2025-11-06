@@ -2,25 +2,22 @@
 using Loterias.CaixaApiService.Services.Interfaces;
 using Loterias.CaixaApiService.Cache;
 using Loterias.Shared;
-using Loterias.CaixaClientLib.Interfaces;  // ✅ certo agora
-using Loterias.CaixaClientLib.Services;    // ✅ implementação
-using Loterias.Logging.Common;
+using Loterias.CaixaClientLib.Interfaces;
+using Loterias.CaixaClientLib.Services;
+using Loterias.Logging.Common.Interfaces;
+using Loterias.Logging.Common.Services;
 using Loterias.Messaging;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using Polly;
-using Polly.Extensions.Http;               // ✅ necessário para AddTransientHttpErrorPolicy
+using Polly.Extensions.Http;
 using Serilog;
-using Prometheus;                           // Para métricas Prometheus
+using Prometheus;
 using Serilog.Events;
 using Serilog.Formatting.Json;
-using Serilog.AspNetCore; // Adicione este using para acessar o método de extensão UseSerilogRequestLogging
-using Loterias.Logging.Common.Interfaces;
-using Loterias.Logging.Common.Services;
-using Microsoft.Extensions.Http; // Necessário para AddPolicyHandler
-using Microsoft.Extensions.DependencyInjection; // NECESSÁRIO para AddPolicyHandler
-
-
+using Serilog.AspNetCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,8 +32,8 @@ builder.Host.UseSerilog((context, config) =>
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     var redisConfig = builder.Configuration.GetSection("Redis");
-    var host = redisConfig["Host"];
-    var port = redisConfig["Port"];
+    var host = redisConfig["Host"] ?? "loterias_redis";
+    var port = redisConfig["Port"] ?? "6379";
     return ConnectionMultiplexer.Connect($"{host}:{port}");
 });
 
@@ -45,8 +42,8 @@ builder.Services.AddSingleton<RedisCacheHandler>();
 // ---------- HTTP CLIENT (Caixa) ----------
 builder.Services.AddHttpClient<ICaixaApiClient, CaixaApiClient>(client =>
 {
-    var baseUrl = builder.Configuration["CaixaApi:BaseUrl"];
-    client.BaseAddress = new Uri(baseUrl!);
+    var baseUrl = builder.Configuration["CaixaApi:BaseUrl"] ?? "https://servicebus2.caixa.gov.br/portaldeloterias/api/";
+    client.BaseAddress = new Uri(baseUrl);
     client.Timeout = TimeSpan.FromSeconds(
         Convert.ToInt32(builder.Configuration["CaixaApi:TimeoutSeconds"] ?? "15"));
 })
@@ -58,9 +55,27 @@ builder.Services.AddHttpClient<ICaixaApiClient, CaixaApiClient>(client =>
     .CircuitBreakerAsync(5, TimeSpan.FromMinutes(1)));
 
 
+builder.Services.AddHttpClient<ICaixaApiClient, CaixaApiClient>()
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
+    });
+
+
 // ---------- SERVIÇOS ----------
 builder.Services.AddScoped<ICaixaApiService, CaixaApiService>();
-builder.Services.AddScoped<IStructuredLogger, StructuredLogger>();
+
+// 🔧 REGISTRO CORRETO DO LOGGER
+builder.Services.AddScoped<IStructuredLogger>(sp =>
+{
+    // endpoint interno do Graylog na rede Docker
+    var graylogUrl = "http://loterias_graylog:12201/gelf"; // endpoint GELF 
+    //    "http://loterias_graylog:9000/api/logs";
+    // O endpoint / api / logs é para REST da UI do Graylog, não para ingestão direta.
+    // O formato GELF(Graylog Extended Log Format) é o mais correto para ingestão de logs via JSON.
+    var serviceName = "Loterias.CaixaApiService";
+    return new StructuredLogger(graylogUrl, serviceName);
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -74,6 +89,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 // ---------- MIDDLEWARE ----------
@@ -83,17 +100,22 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// ⚠️ O routing precisa ser ativado ANTES dos endpoints
+app.UseRouting();
+
+// 🔧 Mapear métricas e health checks corretamente
+app.UseHttpMetrics(); // registra métricas automáticas de requisições HTTP
 app.UseEndpoints(endpoints =>
 {
-    _ = endpoints.MapMetrics(); // expõe /metrics
+    endpoints.MapControllers();
+    endpoints.MapMetrics(); // expõe /metrics para Prometheus
+    endpoints.MapHealthChecks("/healthz"); // healthcheck para Docker
 });
 
-app.MapHealthChecks("/healthz");
-
-
+// Log estruturado de requisições HTTP
 app.UseSerilogRequestLogging();
-app.MapControllers();
 
+// Health endpoint simples manual
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "Healthy",

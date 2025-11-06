@@ -27,8 +27,50 @@ namespace Loterias.CaixaClientLib.Services
             _logger = logger;
             _endpoints = new CaixaEndpointsProvider(_settings.BaseUrl);
 
+            _settings = settings.Value ?? new CaixaSettings
+            {
+                BaseUrl = "https://servicebus2.caixa.gov.br/portaldeloterias/api/",
+                TimeoutSeconds = 15,
+                RetryCount = 3,
+                EnableLogging = true
+            };
+
+
             _httpClient.Timeout = TimeSpan.FromSeconds(_settings.TimeoutSeconds);
             _httpClient.BaseAddress = new Uri(_settings.BaseUrl);
+
+            // A API da Caixa bloqueia requisições sem User-Agent (desde 2023).
+            // Quando não há, ela devolve 400 Bad Request, mesmo que a URL esteja certa.
+
+            _httpClient.DefaultRequestHeaders.AcceptEncoding.Clear();
+            _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
+            _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; LoteriasBot/1.0; +https://github.com/raphaelsa16603)");
+            _httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            _httpClient.DefaultRequestHeaders.Add("Pragma", "no-cache");
+
+            // Habilita descompressão automática
+            _httpClient.DefaultRequestHeaders.TransferEncodingChunked = false;
+            _httpClient.DefaultRequestVersion = new Version(2, 0);
+            _httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+
+            _httpClient.DefaultRequestHeaders.ExpectContinue = false;
+            _httpClient.DefaultRequestHeaders.ConnectionClose = false;
+            _httpClient.DefaultRequestHeaders.AcceptCharset.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("utf-8"));
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate, br");
+
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Connection", "keep-alive");
+
+            // Força cliente a descomprimir gzip
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("TE", "gzip, deflate, br");
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Upgrade-Insecure-Requests", "1");
+
+            _httpClient.DefaultRequestHeaders.Add("Accept-Language", "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7");
+            _httpClient.DefaultRequestHeaders.Add("Origin", "https://loterias.caixa.gov.br");
+
+
         }
 
         public async Task<CaixaResponse?> ObterUltimoResultadoAsync(string tipoLoteria)

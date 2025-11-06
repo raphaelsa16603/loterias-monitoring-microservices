@@ -10,8 +10,11 @@ services:
     volumes:
       - ./Database/Redis:/data
 
+
   loterias_caixa_api:
-    build: ./Loterias.CaixaApiService
+    build:
+      context: .
+      dockerfile: ./Loterias.CaixaApiService/Dockerfile
     container_name: loterias_caixa_api
     ports:
       - "5002:8080"
@@ -22,6 +25,12 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - ENABLE_PROMETHEUS=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 
   prometheus:
     image: prom/prometheus
@@ -34,3 +43,64 @@ services:
     image: grafana/grafana
     ports:
       - "3000:3000"
+
+  loterias_mongodb:
+    image: mongo:6.0
+    container_name: loterias_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./Database/MongoDB:/data/db
+
+  loterias_elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: loterias_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "9200:9200"
+    restart: always
+    
+  graylog:
+    image: graylog/graylog:6.0
+    container_name: loterias_graylog
+    environment:
+      - GRAYLOG_NODE_ID_FILE=/usr/share/graylog/data/node-id
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918  # admin
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9009/
+      - GRAYLOG_ELASTICSEARCH_HOSTS=http://loterias_elasticsearch:9200
+      - GRAYLOG_MONGODB_URI=mongodb://loterias_mongodb:27017/graylog
+      - GRAYLOG_TIMEZONE=America/Fortaleza
+      - GRAYLOG_SERVER_JAVA_OPTS=-Xms1g -Xmx1g
+    depends_on:
+      loterias_elasticsearch:
+        condition: service_healthy
+      loterias_mongodb:
+        condition: service_started
+    ports:
+      - "9009:9000"
+    volumes:
+      - ./Database/Graylog/data:/usr/share/graylog/data
+      - ./Database/Graylog/journal:/usr/share/graylog/journal
+    restart: always
+    mem_limit: 2g
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9000/api/system/lbstatus | grep -q alive"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    mem_limit: 2g
+
