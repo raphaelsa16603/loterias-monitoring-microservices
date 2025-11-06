@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7.2
+    container_name: loterias_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./Database/Redis:/data
+
+  loterias_caixa_api:
+    build: ./Loterias.CaixaApiService
+    container_name: loterias_caixa_api
+    ports:
+      - "5002:8080"
+    depends_on:
+      - redis
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ENABLE_PROMETHEUS=true
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
