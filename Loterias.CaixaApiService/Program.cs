@@ -42,10 +42,15 @@ builder.Services.AddSingleton<RedisCacheHandler>();
 // ---------- HTTP CLIENT (Caixa) ----------
 builder.Services.AddHttpClient<ICaixaApiClient, CaixaApiClient>(client =>
 {
-    var baseUrl = builder.Configuration["CaixaApi:BaseUrl"] ?? "https://servicebus2.caixa.gov.br/portaldeloterias/api/";
+    var baseUrl = builder.Configuration["CaixaApi:BaseUrl"]
+        ?? "https://servicebus2.caixa.gov.br/portaldeloterias/api/";
     client.BaseAddress = new Uri(baseUrl);
     client.Timeout = TimeSpan.FromSeconds(
         Convert.ToInt32(builder.Configuration["CaixaApi:TimeoutSeconds"] ?? "15"));
+})
+.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+{
+    AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
 })
 .AddPolicyHandler(HttpPolicyExtensions
     .HandleTransientHttpError()
@@ -54,12 +59,6 @@ builder.Services.AddHttpClient<ICaixaApiClient, CaixaApiClient>(client =>
     .HandleTransientHttpError()
     .CircuitBreakerAsync(5, TimeSpan.FromMinutes(1)));
 
-
-builder.Services.AddHttpClient<ICaixaApiClient, CaixaApiClient>()
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    {
-        AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
-    });
 
 
 // ---------- SERVIÇOS ----------

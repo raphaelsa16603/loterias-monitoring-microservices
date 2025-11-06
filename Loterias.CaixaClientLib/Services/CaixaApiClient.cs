@@ -1,12 +1,13 @@
-﻿using System.Net.Http.Json;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Loterias.CaixaClientLib.Config;
+﻿using Loterias.CaixaClientLib.Config;
 using Loterias.CaixaClientLib.Enums;
 using Loterias.CaixaClientLib.Exceptions;
 using Loterias.CaixaClientLib.Interfaces;
 using Loterias.CaixaClientLib.Models;
 using Loterias.Logging.Common.Interfaces;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace Loterias.CaixaClientLib.Services
 {
@@ -18,16 +19,11 @@ namespace Loterias.CaixaClientLib.Services
         private readonly IStructuredLogger _logger;
 
         public CaixaApiClient(
-            HttpClient httpClient,
-            IOptions<CaixaSettings> settings,
-            IStructuredLogger logger)
+                        HttpClient httpClient,
+                        IOptions<CaixaSettings> options,
+                        IStructuredLogger logger)
         {
-            _httpClient = httpClient;
-            _settings = settings.Value;
-            _logger = logger;
-            _endpoints = new CaixaEndpointsProvider(_settings.BaseUrl);
-
-            _settings = settings.Value ?? new CaixaSettings
+            _settings = options.Value ?? new CaixaSettings
             {
                 BaseUrl = "https://servicebus2.caixa.gov.br/portaldeloterias/api/",
                 TimeoutSeconds = 15,
@@ -35,43 +31,26 @@ namespace Loterias.CaixaClientLib.Services
                 EnableLogging = true
             };
 
+            // Normaliza a URL base
+            var normalizedBase = _settings.BaseUrl.TrimEnd('/') + "/";
 
+            _httpClient = httpClient;
+            _logger = logger;
+            _endpoints = new CaixaEndpointsProvider(normalizedBase);
+
+            _httpClient.BaseAddress = new Uri(normalizedBase);
             _httpClient.Timeout = TimeSpan.FromSeconds(_settings.TimeoutSeconds);
-            _httpClient.BaseAddress = new Uri(_settings.BaseUrl);
 
-            // A API da Caixa bloqueia requisições sem User-Agent (desde 2023).
-            // Quando não há, ela devolve 400 Bad Request, mesmo que a URL esteja certa.
-
-            _httpClient.DefaultRequestHeaders.AcceptEncoding.Clear();
-            _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-            _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
-            _httpClient.DefaultRequestHeaders.Accept.Clear();
-            _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; LoteriasBot/1.0; +https://github.com/raphaelsa16603)");
-            _httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
-            _httpClient.DefaultRequestHeaders.Add("Pragma", "no-cache");
-
-            // Habilita descompressão automática
-            _httpClient.DefaultRequestHeaders.TransferEncodingChunked = false;
-            _httpClient.DefaultRequestVersion = new Version(2, 0);
-            _httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
-
-            _httpClient.DefaultRequestHeaders.ExpectContinue = false;
-            _httpClient.DefaultRequestHeaders.ConnectionClose = false;
-            _httpClient.DefaultRequestHeaders.AcceptCharset.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("utf-8"));
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate, br");
-
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Connection", "keep-alive");
-
-            // Força cliente a descomprimir gzip
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("TE", "gzip, deflate, br");
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Upgrade-Insecure-Requests", "1");
-
-            _httpClient.DefaultRequestHeaders.Add("Accept-Language", "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7");
-            _httpClient.DefaultRequestHeaders.Add("Origin", "https://loterias.caixa.gov.br");
-
-
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+            _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+            _httpClient.DefaultRequestHeaders.Add("User-Agent",
+                "Mozilla/5.0 (compatible; LoteriasBot/1.0; +https://github.com/raphaelsa16603)");
+            _httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            _httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("pt-BR"));
         }
+
 
         public async Task<CaixaResponse?> ObterUltimoResultadoAsync(string tipoLoteria)
             => await GetAsync($"{tipoLoteria}/ultimo");
@@ -85,14 +64,15 @@ namespace Loterias.CaixaClientLib.Services
         public async Task<CaixaResponse?> ObterResultadoPorConcursoAsync(TipoLoteriaCaixa tipo, int concurso)
             => await GetAsync(_endpoints.GetUrlPorConcurso(tipo, concurso), true);
 
-        private async Task<CaixaResponse?> GetAsync(string url, bool fullUrl = false)
+        private async Task<CaixaResponse?> GetAsync(string path, bool fullUrl = false)
         {
             for (int attempt = 1; attempt <= _settings.RetryCount; attempt++)
             {
                 try
                 {
-                    var targetUrl = fullUrl ? url : $"{_settings.BaseUrl}{url}";
-                    var response = await _httpClient.GetAsync(targetUrl);
+                    var response = fullUrl
+                        ? await _httpClient.GetAsync(path)
+                        : await _httpClient.GetAsync(path.TrimStart('/'));
 
                     if (!response.IsSuccessStatusCode)
                     {
@@ -103,39 +83,28 @@ namespace Loterias.CaixaClientLib.Services
                     var data = await response.Content.ReadFromJsonAsync<CaixaResponse>();
 
                     if (_settings.EnableLogging)
-                    {
-                        _logger.Info(
-                            $"✅ Sucesso ao consultar {targetUrl}",
-                            new
-                            {
-                                Tipo = data?.TipoJogo,
-                                Concurso = data?.NumeroConcurso,
-                                Url = targetUrl
-                            });
-                    }
+                        _logger.Info("✅ Consulta Caixa OK", new { Url = response.RequestMessage?.RequestUri?.ToString(), data?.TipoJogo });
 
                     return data;
                 }
                 catch (Exception ex)
                 {
-                    _logger.Warn(
-                        $"Tentativa {attempt}/{_settings.RetryCount} falhou ao acessar {url}",
-                        new { Url = url, Tentativa = attempt, Erro = ex.Message });
+                    _logger.Warn($"Tentativa {attempt}/{_settings.RetryCount} falhou", new { path, ex.Message });
 
                     if (attempt == _settings.RetryCount)
                     {
-                        _logger.Error(
-                            $"❌ Falha definitiva após {attempt} tentativas em {url}",
-                            ex,
-                            new { Url = url, Tentativa = attempt });
+                        _logger.Error("❌ Falha definitiva", ex, new { path });
                         throw;
                     }
 
-                    await Task.Delay(1000 * attempt); // backoff incremental
+                    await Task.Delay(1000 * attempt);
                 }
             }
-
             return null;
         }
+
+
+
+
     }
 }
