@@ -75,6 +75,9 @@ namespace Loterias.CaixaApiService.Models
             }
         }
 
+        [JsonPropertyName("numerosDoSorteio")]
+        public int[] NumerosDoSorteio { get; set; } = Array.Empty<int>();
+
         [JsonPropertyName("nomeMunicipioUFSorteio")]
         public string NomeMunicipioUFSorteio { get; set; } = string.Empty;
 

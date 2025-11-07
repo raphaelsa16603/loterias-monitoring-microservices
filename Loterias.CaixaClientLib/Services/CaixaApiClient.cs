@@ -82,6 +82,7 @@ namespace Loterias.CaixaClientLib.Services
 
                     var data = await response.Content.ReadFromJsonAsync<CaixaResponse>();
 
+
                     if (_settings.EnableLogging)
                         _logger.Info("✅ Consulta Caixa OK", new { Url = response.RequestMessage?.RequestUri?.ToString(), data?.TipoJogo });
 
