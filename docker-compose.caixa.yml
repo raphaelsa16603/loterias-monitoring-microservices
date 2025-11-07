@@ -38,10 +38,7 @@ services:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    scrape_configs:
-    - job_name: 'loterias_caixa_api'
-      static_configs:
-        - targets: ['loterias_caixa_api:8080']
+
 
   grafana:
     image: grafana/grafana
