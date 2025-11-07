@@ -101,35 +101,3 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
-    
-  graylog:
-    image: graylog/graylog:6.0
-    container_name: loterias_graylog
-    environment:
-      - GRAYLOG_NODE_ID_FILE=/usr/share/graylog/data/node-id
-      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
-      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918  # admin
-      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9009/
-      - GRAYLOG_ELASTICSEARCH_HOSTS=http://loterias_elasticsearch:9200
-      - GRAYLOG_MONGODB_URI=mongodb://loterias_mongodb:27017/graylog
-      - GRAYLOG_TIMEZONE=America/Fortaleza
-      - GRAYLOG_SERVER_JAVA_OPTS=-Xms1g -Xmx1g
-    depends_on:
-      loterias_elasticsearch:
-        condition: service_healthy
-      loterias_mongodb:
-        condition: service_started
-    ports:
-      - "9009:9000"
-    volumes:
-      - ./Database/Graylog/data:/usr/share/graylog/data
-      - ./Database/Graylog/journal:/usr/share/graylog/journal
-    restart: always
-    mem_limit: 2g
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:9000/api/system/lbstatus | grep -q alive"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-

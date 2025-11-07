@@ -1,0 +1,6 @@
+@Loterias.CaixaApiService_HostAddress = http://localhost:5101
+
+GET {{Loterias.CaixaApiService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

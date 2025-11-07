@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36603.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDaApiCaixa", "TestDaApiCaixa\TestDaApiCaixa.csproj", "{2A483DCA-7240-4799-B986-44BB51AA398D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Shared", "..\001 - API Simples Caixa\Loterias.Shared\Loterias.Shared.csproj", "{C6D465AA-43E9-3B4E-8E41-167DB92E4260}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CaixaClientLib", "..\001 - API Simples Caixa\Loterias.CaixaClientLib\Loterias.CaixaClientLib.csproj", "{9A858CDB-5AED-771A-E434-5428AA068261}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CaixaApiService", "..\001 - API Simples Caixa\Loterias.CaixaApiService\Loterias.CaixaApiService.csproj", "{2D6B0F38-D8C0-B67D-CF9C-94A6E6FD6499}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A483DCA-7240-4799-B986-44BB51AA398D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A483DCA-7240-4799-B986-44BB51AA398D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A483DCA-7240-4799-B986-44BB51AA398D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A483DCA-7240-4799-B986-44BB51AA398D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6D465AA-43E9-3B4E-8E41-167DB92E4260}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6D465AA-43E9-3B4E-8E41-167DB92E4260}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6D465AA-43E9-3B4E-8E41-167DB92E4260}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6D465AA-43E9-3B4E-8E41-167DB92E4260}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A858CDB-5AED-771A-E434-5428AA068261}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A858CDB-5AED-771A-E434-5428AA068261}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A858CDB-5AED-771A-E434-5428AA068261}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A858CDB-5AED-771A-E434-5428AA068261}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D6B0F38-D8C0-B67D-CF9C-94A6E6FD6499}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D6B0F38-D8C0-B67D-CF9C-94A6E6FD6499}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D6B0F38-D8C0-B67D-CF9C-94A6E6FD6499}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D6B0F38-D8C0-B67D-CF9C-94A6E6FD6499}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {591BEBAA-7353-4695-8302-584E303F7A99}
+	EndGlobalSection
+EndGlobal
