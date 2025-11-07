@@ -9,7 +9,8 @@ services:
       - "6379:6379"
     volumes:
       - ./Database/Redis:/data
-
+    networks:
+      - loterias-network
 
   loterias_caixa_api:
     build:
@@ -30,7 +31,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
+    networks:
+      - loterias-network
 
   prometheus:
     image: prom/prometheus
@@ -38,13 +40,17 @@ services:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-
+    networks:
+      - loterias-network
 
   grafana:
     image: grafana/grafana
     ports:
       - "3000:3000"
-
+    networks:
+      - loterias-network
+      
+      
   loterias-mongodb:
     image: mongo:6.0
     container_name: loterias-mongodb
@@ -53,7 +59,8 @@ services:
       - "27017:27017"
     volumes:
       - ./Database/MongoDB:/data/db
-  
+    networks:
+      - loterias-network  
   
   loterias-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.24
@@ -74,8 +81,10 @@ services:
     ports:
       - "9200:9200"
     restart: always
-
-  graylog:
+    networks:
+      - loterias-network
+      
+  loterias-graylog:
     image: graylog/graylog:6.0
     container_name: loterias_graylog
     environment:
@@ -104,3 +113,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - loterias-network
+      
+networks:
+  loterias-network:
+    driver: bridge
