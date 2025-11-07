@@ -26,7 +26,7 @@ services:
       - REDIS_PORT=6379
       - ENABLE_PROMETHEUS=true
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -92,6 +92,7 @@ services:
     ports:
       - "9009:9000"
     volumes:
+      - ./Database/Graylog/config:/usr/share/graylog/data/config    
       - ./Database/Graylog-data:/usr/share/graylog/data
       - ./Database/Graylog-journal:/usr/share/graylog/journal
     restart: always
