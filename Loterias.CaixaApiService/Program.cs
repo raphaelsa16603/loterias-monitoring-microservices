@@ -11,21 +11,24 @@ using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using Polly;
 using Polly.Extensions.Http;
-using Serilog;
 using Prometheus;
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http;
+using Serilog;
+using Serilog.Sinks.Graylog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ---------- CONFIGURAÇÕES BÁSICAS ----------
 builder.Host.UseSerilog((context, config) =>
 {
-    config.ReadFrom.Configuration(context.Configuration);
-    config.WriteTo.Console();
+    config
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext()
+        .WriteTo.Console();
 });
 
 // ---------- REDIS ----------
@@ -67,14 +70,14 @@ builder.Services.AddScoped<ICaixaApiService, CaixaApiService>();
 // 🔧 REGISTRO CORRETO DO LOGGER
 builder.Services.AddScoped<IStructuredLogger>(sp =>
 {
-    // endpoint interno do Graylog na rede Docker
-    var graylogUrl = "http://loterias_graylog:12201/gelf"; // endpoint GELF 
-    //    "http://loterias_graylog:9000/api/logs";
-    // O endpoint / api / logs é para REST da UI do Graylog, não para ingestão direta.
-    // O formato GELF(Graylog Extended Log Format) é o mais correto para ingestão de logs via JSON.
+    // Nome do container Graylog e porta UDP configurada
+    var graylogHost = "loterias-graylog";
+    var graylogPort = 12201;
     var serviceName = "Loterias.CaixaApiService";
-    return new StructuredLogger(graylogUrl, serviceName);
+
+    return new StructuredLogger(graylogHost, graylogPort, serviceName);
 });
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

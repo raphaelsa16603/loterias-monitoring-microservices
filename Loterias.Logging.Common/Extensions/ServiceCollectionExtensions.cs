@@ -80,7 +80,14 @@ namespace Loterias.Logging.Common.Extensions
             }
 
             services.TryAddSingleton<IStructuredLogger>(
-                _ => new StructuredLogger(options!.GraylogUrl!, options!.ServiceName!)
+                _ =>
+                {
+                    // Extrai host e porta da URL do Graylog
+                    var uri = new Uri(options!.GraylogUrl!);
+                    var host = uri.Host;
+                    var port = uri.Port;
+                    return new StructuredLogger(host, port, options!.ServiceName!);
+                }
             );
 
             return services;
