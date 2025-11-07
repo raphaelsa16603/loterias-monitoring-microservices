@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Loterias.CaixaClientLib.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace Loterias.CaixaClientLib.Models
 {
@@ -16,6 +17,7 @@ namespace Loterias.CaixaClientLib.Models
         public int NumeroConcurso { get; set; }
 
         [JsonPropertyName("dataApuracao")]
+        [JsonConverter(typeof(DateTimeConverterCaixa))]
         public DateTime DataApuracao { get; set; }
 
         [JsonPropertyName("dezenasSorteadasOrdemSorteio")]
@@ -37,6 +39,7 @@ namespace Loterias.CaixaClientLib.Models
         public string NomeMunicipioUFSorteio { get; set; } = string.Empty;
 
         [JsonPropertyName("dataProximoConcurso")]
+        [JsonConverter(typeof(DateTimeConverterCaixa))]
         public DateTime? DataProximoConcurso { get; set; }
 
         [JsonPropertyName("numeroConcursoProximo")]

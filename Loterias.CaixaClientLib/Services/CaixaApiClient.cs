@@ -53,7 +53,7 @@ namespace Loterias.CaixaClientLib.Services
 
 
         public async Task<CaixaResponse?> ObterUltimoResultadoAsync(string tipoLoteria)
-            => await GetAsync($"{tipoLoteria}/ultimo");
+            => await GetAsync($"{tipoLoteria}/");
 
         public async Task<CaixaResponse?> ObterResultadoPorConcursoAsync(string tipoLoteria, int concurso)
             => await GetAsync($"{tipoLoteria}/{concurso}");
