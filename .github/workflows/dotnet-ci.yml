@@ -1,4 +1,4 @@
-name: Build Core Libraries (.NET 8)
+name: Build & Unit Test (.NET 8)
 
 on:
   push:
@@ -7,18 +7,21 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  build-core-libs:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
+      # 🧱 1️⃣ Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 🧰 2️⃣ Setup .NET 8
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
+      # 📦 3️⃣ Cache NuGet
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -27,71 +30,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      # 🧱 Build Loterias.Shared
-      - name: Clean previous build (Shared)
+      # 🧩 4️⃣ Restaurar e compilar a solução inteira
+      - name: Restore dependencies
+        run: dotnet restore LoteriasSolution.sln
+
+      - name: Build solution
+        run: dotnet build LoteriasSolution.sln --configuration Release --no-restore
+
+      # 🧪 5️⃣ Testes Unitários (somente)
+      - name: Run Unit Tests
         run: |
-          echo "🧹 Limpando pastas anteriores..."
-          rm -rf Loterias.Shared/bin Loterias.Shared/obj || true
+          echo "🧪 Executando testes unitários..."
+          dotnet test Loterias.Tests.Unit/Loterias.Tests.Unit.csproj --configuration Release --no-build --logger "trx;LogFileName=UnitTests.trx" --results-directory TestResults
+        continue-on-error: false
 
-      - name: Restore dependencies (Loterias.Shared)
-        run: dotnet restore Loterias.Shared/Loterias.Shared.csproj
-
-      - name: Build Loterias.Shared
-        run: dotnet build Loterias.Shared/Loterias.Shared.csproj --configuration Release --no-restore
-
-      - name: Verify output (Shared)
-        run: |
-          echo "✅ Build concluído: Loterias.Shared"
-          ls -l Loterias.Shared/bin/Release/net8.0/ || true
-
-      # 🧩 Build Loterias.Logging.Common
-      - name: Clean previous build (Logging.Common)
-        run: |
-          echo "🧹 Limpando pastas anteriores..."
-          rm -rf Loterias.Logging.Common/bin Loterias.Logging.Common/obj || true
-
-      - name: Restore dependencies (Loterias.Logging.Common)
-        run: dotnet restore Loterias.Logging.Common/Loterias.Logging.Common.csproj
-
-      - name: Build Loterias.Logging.Common
-        run: dotnet build Loterias.Logging.Common/Loterias.Logging.Common.csproj --configuration Release --no-restore
-
-      - name: Verify output (Logging.Common)
-        run: |
-          echo "✅ Build concluído: Loterias.Logging.Common"
-          ls -l Loterias.Logging.Common/bin/Release/net8.0/ || true
-
-      # 🎯 Build Loterias.CaixaClientLib
-      - name: Clean previous build (CaixaClientLib)
-        run: |
-          echo "🧹 Limpando pastas anteriores..."
-          rm -rf Loterias.CaixaClientLib/bin Loterias.CaixaClientLib/obj || true
-
-      - name: Restore dependencies (Loterias.CaixaClientLib)
-        run: dotnet restore Loterias.CaixaClientLib/Loterias.CaixaClientLib.csproj
-
-      - name: Build Loterias.CaixaClientLib
-        run: dotnet build Loterias.CaixaClientLib/Loterias.CaixaClientLib.csproj --configuration Release --no-restore
-
-      - name: Verify output (CaixaClientLib)
-        run: |
-          echo "✅ Build concluído: Loterias.CaixaClientLib"
-          ls -l Loterias.CaixaClientLib/bin/Release/net8.0/ || true
-
-
-      # 🚀 Build Loterias.Messaging (Kafka Abstraction)
-      - name: Clean previous build (Messaging)
-        run: |
-          echo "🧹 Limpando pastas anteriores..."
-          rm -rf Loterias.Messaging/bin Loterias.Messaging/obj || true
-
-      - name: Restore dependencies (Loterias.Messaging)
-        run: dotnet restore Loterias.Messaging/Loterias.Messaging.csproj
-
-      - name: Build Loterias.Messaging
-        run: dotnet build Loterias.Messaging/Loterias.Messaging.csproj --configuration Release --no-restore
-
-      - name: Verify output (Messaging)
-        run: |
-          echo "✅ Build concluído: Loterias.Messaging"
-          ls -l Loterias.Messaging/bin/Release/net8.0/ || true
+      # 📊 6️⃣ Publicar resultados de teste
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: UnitTestResults
+          path: TestResults/

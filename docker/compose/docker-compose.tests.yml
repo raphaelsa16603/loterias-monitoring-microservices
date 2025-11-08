@@ -1,0 +1,46 @@
+version: "3.9"
+
+networks:
+  loterias-network:
+    external: true
+
+services:
+  # 🔴 Redis para cache
+  redis:
+    image: redis:7.2
+    container_name: loterias_redis_tests
+    restart: unless-stopped
+    ports:
+      - "6380:6379"          # evita conflito com redis local
+    networks:
+      - loterias-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  # 🟢 API Caixa (serviço sob teste)
+  loterias_caixa_api:
+    build:
+      context: ../../..
+      dockerfile: ./Loterias.CaixaApiService/Dockerfile
+    container_name: loterias-caixa-api-tests
+    restart: unless-stopped
+    ports:
+      - "5102:8080"
+    depends_on:
+      - redis
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ENABLE_PROMETHEUS=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - loterias-network
