@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 
+
 namespace Loterias.CaixaClientLib.Models
 {
     public class PremiacaoCaixa
@@ -22,4 +23,3 @@ namespace Loterias.CaixaClientLib.Models
         public decimal ValorPremio { get; set; }
     }
 }
-

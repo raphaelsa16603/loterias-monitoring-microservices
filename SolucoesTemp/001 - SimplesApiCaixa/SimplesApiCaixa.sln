@@ -5,11 +5,11 @@ VisualStudioVersion = 17.14.36603.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDaApiCaixa", "TestDaApiCaixa\TestDaApiCaixa.csproj", "{2A483DCA-7240-4799-B986-44BB51AA398D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Shared", "..\001 - API Simples Caixa\Loterias.Shared\Loterias.Shared.csproj", "{C6D465AA-43E9-3B4E-8E41-167DB92E4260}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.Shared", "Loterias.Shared\Loterias.Shared.csproj", "{C6D465AA-43E9-3B4E-8E41-167DB92E4260}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CaixaClientLib", "..\001 - API Simples Caixa\Loterias.CaixaClientLib\Loterias.CaixaClientLib.csproj", "{9A858CDB-5AED-771A-E434-5428AA068261}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CaixaClientLib", "Loterias.CaixaClientLib\Loterias.CaixaClientLib.csproj", "{9A858CDB-5AED-771A-E434-5428AA068261}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CaixaApiService", "..\001 - API Simples Caixa\Loterias.CaixaApiService\Loterias.CaixaApiService.csproj", "{2D6B0F38-D8C0-B67D-CF9C-94A6E6FD6499}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loterias.CaixaApiService", "Loterias.CaixaApiService\Loterias.CaixaApiService.csproj", "{2D6B0F38-D8C0-B67D-CF9C-94A6E6FD6499}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

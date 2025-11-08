@@ -30,7 +30,7 @@ namespace Loterias.CaixaApiService.Services
                 TipoLoteria = response.TipoJogo,
                 Concurso = response.NumeroConcurso,
                 DataSorteio = response.DataApuracao,
-                ListaDezenas = response.Dezenas,
+                ListaDezenas = response.ListaDezenas,
                 Premiacoes = response.Premiacao?.ConvertAll(p => new PremiacaoDto
                 {
                     Faixa = p.Faixa,
@@ -42,7 +42,7 @@ namespace Loterias.CaixaApiService.Services
                 ArrecadacaoTotal = response.ValorArrecadado,
                 ValorAcumuladoProxConcurso = response.ValorAcumuladoProximoConcurso,
                 LocalSorteio = response.LocalSorteio,
-                DezenasEmOrdem = response.Dezenas.Order().ToList(),
+                DezenasEmOrdem = response.ListaDezenas.Order().ToList(),
                 NomeMunicipioUFSorteio = response.NomeMunicipioUFSorteio,
                 DataProximoConcurso = response.DataProximoConcurso,
                 NumeroConcursoProximo = response.NumeroConcursoProximo,

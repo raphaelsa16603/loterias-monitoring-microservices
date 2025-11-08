@@ -21,8 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\001 - API Simples Caixa\Loterias.CaixaApiService\Loterias.CaixaApiService.csproj" />
-    <ProjectReference Include="..\..\001 - API Simples Caixa\Loterias.CaixaClientLib\Loterias.CaixaClientLib.csproj" />
+    <ProjectReference Include="..\Loterias.CaixaApiService\Loterias.CaixaApiService.csproj" />
+    <ProjectReference Include="..\Loterias.CaixaClientLib\Loterias.CaixaClientLib.csproj" />
+    <ProjectReference Include="..\Loterias.Shared\Loterias.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

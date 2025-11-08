@@ -63,8 +63,15 @@ namespace Loterias.CaixaClientLib.Services
         public async Task<CaixaResponse?> ObterResultadoPorConcursoAsync(TipoLoteriaCaixa tipo, int concurso)
             => await GetAsync(_endpoints.GetUrlPorConcurso(tipo, concurso), true);
 
+
         private async Task<CaixaResponse?> GetAsync(string path, bool fullUrl = false)
         {
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new Loterias.CaixaClientLib.Util.DateTimeConverterCaixa() }
+            };
+
             for (int attempt = 1; attempt <= _settings.RetryCount; attempt++)
             {
                 try
@@ -79,20 +86,22 @@ namespace Loterias.CaixaClientLib.Services
                         throw new CaixaApiException(response.StatusCode, content);
                     }
 
-                    var data = await response.Content.ReadFromJsonAsync<CaixaResponse>();
+                    var data = await response.Content.ReadFromJsonAsync<CaixaResponse>(jsonOptions);
 
                     if (_settings.EnableLogging)
                         _logger.LogInformation(
-                            "✅ Consulta Caixa OK | Url: {Url} | TipoJogo: {TipoJogo}",
-                            response.RequestMessage?.RequestUri?.ToString(),
-                            data?.TipoJogo
+                            "✅ Caixa API OK | TipoJogo: {TipoJogo} | Concurso: {Numero} | Data: {Data}",
+                            data?.TipoJogo, data?.NumeroConcurso, data?.DataApuracao.ToString("dd/MM/yyyy")
                         );
 
                     return data;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning("Tentativa {Attempt}/{RetryCount} falhou. Path: {Path}. Erro: {ErrorMessage}", attempt, _settings.RetryCount, path, ex.Message);
+                    _logger.LogWarning(
+                        "Tentativa {Attempt}/{RetryCount} falhou. Path: {Path}. Erro: {ErrorMessage}",
+                        attempt, _settings.RetryCount, path, ex.Message
+                    );
 
                     if (attempt == _settings.RetryCount)
                     {
@@ -105,8 +114,6 @@ namespace Loterias.CaixaClientLib.Services
             }
             return null;
         }
-
-
 
 
     }
