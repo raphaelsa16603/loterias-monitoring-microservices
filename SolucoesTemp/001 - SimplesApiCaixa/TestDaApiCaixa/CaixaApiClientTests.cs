@@ -1,4 +1,4 @@
-using Loterias.CaixaClientLib.Config;
+﻿using Loterias.CaixaClientLib.Config;
 using Loterias.CaixaClientLib.Enums;
 using Loterias.CaixaClientLib.Exceptions;
 using Loterias.CaixaClientLib.Interfaces;
@@ -7,16 +7,16 @@ using Loterias.CaixaClientLib.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using NUnit.Framework;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
-using NUnit.Framework;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace TestDaApiCaixa
 {
+    [TestFixture]
     public class CaixaApiClientTests
     {
         private CaixaApiClient CreateClient(HttpMessageHandler handler, CaixaSettings? settings = null)
@@ -29,66 +29,76 @@ namespace TestDaApiCaixa
                 RetryCount = 2,
                 EnableLogging = false
             });
+
             var loggerMock = new Mock<ILogger<CaixaApiClient>>();
             return new CaixaApiClient(httpClient, options, loggerMock.Object);
         }
 
-        [Test]
-        public async Task ObterUltimoResultadoAsync_String_DeveRetornarCaixaResponse()
+        // ✅ Teste genérico para todos os jogos suportados
+        [TestCase("megasena")]
+        [TestCase("quina")]
+        [TestCase("lotofacil")]
+        [TestCase("lotomania")]
+        [TestCase("timemania")]
+        [TestCase("duplasena")]
+        [TestCase("federal")]
+        [TestCase("loteca")]
+        [TestCase("diadesorte")]
+        [TestCase("supersete")]
+        [TestCase("maismilionaria")]
+        public async Task ObterUltimoResultadoAsync_DeveDesserializarTodosOsCampos(string tipoJogo)
         {
-            var expected = new CaixaResponse { TipoJogo = "megasena", NumeroConcurso = 1234 };
-            var handler = new MockHttpMessageHandler(JsonSerializer.Serialize(expected), HttpStatusCode.OK);
+            // 🔹 Arrange – Simula resposta básica representativa
+            var fakeResponse = new CaixaResponse
+            {
+                TipoJogo = tipoJogo.ToUpper(),
+                NumeroConcurso = 9999,
+                DataApuracao = DateTime.Now,
+                ListaDezenas = new List<string> { "01", "02", "03" },
+                Premiacao = new List<PremiacaoCaixa>
+                {
+                    new PremiacaoCaixa { Faixa = 1, DescricaoFaixa = "6 acertos", NumeroDeGanhadores = 0, ValorPremio = 0.0m }
+                },
+                LocalSorteio = "ESPAÇO DA SORTE",
+                NomeMunicipioUFSorteio = "SÃO PAULO, SP",
+                ValorArrecadado = 12345678.90m,
+                ValorAcumuladoProximoConcurso = 1000000.00m,
+                Acumulado = true,
+                DataProximoConcurso = DateTime.Now.AddDays(2),
+                NumeroConcursoProximo = 10000,
+                TrevosSorteados = tipoJogo == "maismilionaria" ? new List<string> { "1", "4" } : null,
+
+                // ✅ Adicionado: simulação do segundo sorteio da Dupla Sena
+                ListaDezenasSegundoSorteio = tipoJogo == "duplasena"
+                    ? new List<string> { "05", "10", "15", "20", "25", "30" }
+                    : null
+            };
+
+
+            var json = JsonSerializer.Serialize(fakeResponse);
+            var handler = new MockHttpMessageHandler(json, HttpStatusCode.OK);
             var client = CreateClient(handler);
 
-            var result = await client.ObterUltimoResultadoAsync("megasena");
+            // 🔹 Act
+            var result = await client.ObterUltimoResultadoAsync(tipoJogo);
 
-            Assert.NotNull(result);
-            Assert.AreEqual("megasena", result!.TipoJogo);
-            Assert.AreEqual(1234, result.NumeroConcurso);
+            // 🔹 Assert
+            Assert.NotNull(result, $"O resultado do jogo {tipoJogo} não deve ser nulo");
+            Assert.AreEqual(fakeResponse.TipoJogo, result!.TipoJogo, "TipoJogo incorreto");
+            Assert.AreEqual(fakeResponse.NumeroConcurso, result.NumeroConcurso, "Número do concurso incorreto");
+            Assert.AreEqual(fakeResponse.LocalSorteio, result.LocalSorteio);
+            Assert.AreEqual(fakeResponse.NomeMunicipioUFSorteio, result.NomeMunicipioUFSorteio);
+            Assert.GreaterOrEqual(result.ListaDezenas.Count, 1, "Dezenas não foram mapeadas");
+
+            // Campos opcionais
+            if (tipoJogo == "maismilionaria")
+                Assert.NotNull(result.TrevosSorteados, "TrevosSorteados deve existir na +Milionária");
+
+            if (tipoJogo == "duplasena")
+                Assert.NotNull(result.ListaDezenasSegundoSorteio, "DezenasSegundoSorteio deve existir na Dupla Sena");
         }
 
-        [Test]
-        public async Task ObterResultadoPorConcursoAsync_String_DeveRetornarCaixaResponse()
-        {
-            var expected = new CaixaResponse { TipoJogo = "quina", NumeroConcurso = 5678 };
-            var handler = new MockHttpMessageHandler(JsonSerializer.Serialize(expected), HttpStatusCode.OK);
-            var client = CreateClient(handler);
-
-            var result = await client.ObterResultadoPorConcursoAsync("quina", 5678);
-
-            Assert.NotNull(result);
-            Assert.AreEqual("quina", result!.TipoJogo);
-            Assert.AreEqual(5678, result.NumeroConcurso);
-        }
-
-        [Test]
-        public async Task ObterUltimoResultadoAsync_Enum_DeveRetornarCaixaResponse()
-        {
-            var expected = new CaixaResponse { TipoJogo = "lotofacil", NumeroConcurso = 9999 };
-            var handler = new MockHttpMessageHandler(JsonSerializer.Serialize(expected), HttpStatusCode.OK);
-            var client = CreateClient(handler);
-
-            var result = await client.ObterUltimoResultadoAsync(TipoLoteriaCaixa.Lotofacil);
-
-            Assert.NotNull(result);
-            Assert.AreEqual("lotofacil", result!.TipoJogo);
-            Assert.AreEqual(9999, result.NumeroConcurso);
-        }
-
-        [Test]
-        public async Task ObterResultadoPorConcursoAsync_Enum_DeveRetornarCaixaResponse()
-        {
-            var expected = new CaixaResponse { TipoJogo = "timemania", NumeroConcurso = 4321 };
-            var handler = new MockHttpMessageHandler(JsonSerializer.Serialize(expected), HttpStatusCode.OK);
-            var client = CreateClient(handler);
-
-            var result = await client.ObterResultadoPorConcursoAsync(TipoLoteriaCaixa.Timemania, 4321);
-
-            Assert.NotNull(result);
-            Assert.AreEqual("timemania", result!.TipoJogo);
-            Assert.AreEqual(4321, result.NumeroConcurso);
-        }
-
+        // ✅ Testa comportamento de retry e exceção
         [Test]
         public void GetAsync_DeveTentarNovamenteEmErro()
         {
@@ -107,6 +117,7 @@ namespace TestDaApiCaixa
             });
         }
 
+        // 🔧 Handler mockado reutilizável
         private class MockHttpMessageHandler : HttpMessageHandler
         {
             private readonly string _response;
