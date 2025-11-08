@@ -13,6 +13,8 @@
 		<PackageReference Include="coverlet.collector" Version="6.0.2" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\Loterias.CaixaClientLib\Loterias.CaixaClientLib.csproj" />
+		<ProjectReference Include="..\Loterias.Logging.Common\Loterias.Logging.Common.csproj" />
 		<ProjectReference Include="..\Loterias.Shared\Loterias.Shared.csproj" />
 		<ProjectReference Include="..\Loterias.QueryApiService\Loterias.QueryApiService.csproj" />
 	</ItemGroup>
