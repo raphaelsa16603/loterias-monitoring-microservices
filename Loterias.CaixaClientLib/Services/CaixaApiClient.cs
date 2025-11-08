@@ -3,7 +3,6 @@ using Loterias.CaixaClientLib.Enums;
 using Loterias.CaixaClientLib.Exceptions;
 using Loterias.CaixaClientLib.Interfaces;
 using Loterias.CaixaClientLib.Models;
-using Loterias.Logging.Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
@@ -16,12 +15,12 @@ namespace Loterias.CaixaClientLib.Services
         private readonly HttpClient _httpClient;
         private readonly CaixaSettings _settings;
         private readonly CaixaEndpointsProvider _endpoints;
-        private readonly IStructuredLogger _logger;
+        private readonly ILogger _logger;
 
         public CaixaApiClient(
                         HttpClient httpClient,
                         IOptions<CaixaSettings> options,
-                        IStructuredLogger logger)
+                        ILogger<CaixaApiClient> logger)
         {
             _settings = options.Value ?? new CaixaSettings
             {
@@ -35,7 +34,7 @@ namespace Loterias.CaixaClientLib.Services
             var normalizedBase = _settings.BaseUrl.TrimEnd('/') + "/";
 
             _httpClient = httpClient;
-            _logger = logger;
+            _logger = logger; // agora corretamente tipado
             _endpoints = new CaixaEndpointsProvider(normalizedBase);
 
             _httpClient.BaseAddress = new Uri(normalizedBase);
@@ -64,8 +63,15 @@ namespace Loterias.CaixaClientLib.Services
         public async Task<CaixaResponse?> ObterResultadoPorConcursoAsync(TipoLoteriaCaixa tipo, int concurso)
             => await GetAsync(_endpoints.GetUrlPorConcurso(tipo, concurso), true);
 
+
         private async Task<CaixaResponse?> GetAsync(string path, bool fullUrl = false)
         {
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new Loterias.CaixaClientLib.Util.DateTimeConverterCaixa() }
+            };
+
             for (int attempt = 1; attempt <= _settings.RetryCount; attempt++)
             {
                 try
@@ -80,21 +86,26 @@ namespace Loterias.CaixaClientLib.Services
                         throw new CaixaApiException(response.StatusCode, content);
                     }
 
-                    var data = await response.Content.ReadFromJsonAsync<CaixaResponse>();
-
+                    var data = await response.Content.ReadFromJsonAsync<CaixaResponse>(jsonOptions);
 
                     if (_settings.EnableLogging)
-                        _logger.Info("✅ Consulta Caixa OK", new { Url = response.RequestMessage?.RequestUri?.ToString(), data?.TipoJogo });
+                        _logger.LogInformation(
+                            "✅ Caixa API OK | TipoJogo: {TipoJogo} | Concurso: {Numero} | Data: {Data}",
+                            data?.TipoJogo, data?.NumeroConcurso, data?.DataApuracao.ToString("dd/MM/yyyy")
+                        );
 
                     return data;
                 }
                 catch (Exception ex)
                 {
-                    _logger.Warn($"Tentativa {attempt}/{_settings.RetryCount} falhou", new { path, ex.Message });
+                    _logger.LogWarning(
+                        "Tentativa {Attempt}/{RetryCount} falhou. Path: {Path}. Erro: {ErrorMessage}",
+                        attempt, _settings.RetryCount, path, ex.Message
+                    );
 
                     if (attempt == _settings.RetryCount)
                     {
-                        _logger.Error("❌ Falha definitiva", ex, new { path });
+                        _logger.LogError(ex, "❌ Falha definitiva. Path: {Path}", path);
                         throw;
                     }
 
@@ -103,8 +114,6 @@ namespace Loterias.CaixaClientLib.Services
             }
             return null;
         }
-
-
 
 
     }
