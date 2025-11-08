@@ -30,26 +30,52 @@ namespace Loterias.CaixaApiService.Services
                 TipoLoteria = response.TipoJogo,
                 Concurso = response.NumeroConcurso,
                 DataSorteio = response.DataApuracao,
+                LocalSorteio = response.LocalSorteio,
+                NomeMunicipioUFSorteio = response.NomeMunicipioUFSorteio,
                 ListaDezenas = response.ListaDezenas,
-                Premiacoes = response.Premiacao?.ConvertAll(p => new PremiacaoDto
+                DezenasEmOrdem = response.DezenasSorteadasOrdemSorteio,
+                DezenasSegundoSorteio = response.ListaDezenasSegundoSorteio,
+                TrevosSorteados = response.TrevosSorteados,
+                NomeTimeCoracaoMesSorte = response.NomeTimeCoracaoMesSorte,
+                ArrecadacaoTotal = response.ValorArrecadado,
+                Acumulado = response.Acumulado,
+                ValorAcumuladoProxConcurso = response.ValorAcumuladoProximoConcurso,
+                ValorAcumuladoConcursoEspecial = response.ValorAcumuladoConcursoEspecial,
+                ValorEstimadoProximoConcurso = response.ValorEstimadoProximoConcurso,
+                ValorSaldoReservaGarantidora = response.ValorSaldoReservaGarantidora,
+                ValorTotalPremioFaixaUm = response.ValorTotalPremioFaixaUm,
+                Premiacoes = response.Premiacao?.Select(p => new PremiacaoDto
                 {
                     Faixa = p.Faixa,
                     Descricao = p.DescricaoFaixa,
                     Ganhadores = p.NumeroDeGanhadores,
-                    ValorPremio = p.ValorPremio,
-                }),
-
-                ArrecadacaoTotal = response.ValorArrecadado,
-                ValorAcumuladoProxConcurso = response.ValorAcumuladoProximoConcurso,
-                LocalSorteio = response.LocalSorteio,
-                DezenasEmOrdem = response.ListaDezenas.Order().ToList(),
-                NomeMunicipioUFSorteio = response.NomeMunicipioUFSorteio,
+                    ValorPremio = p.ValorPremio
+                }).ToList(),
+                MunicipiosGanhadores = response.ListaMunicipioUFGanhadores?.Select(m => new MunicipioUFGanhadorDto
+                {
+                    Municipio = m.Municipio,
+                    UF = m.UF,
+                    Ganhadores = m.Ganhadores,
+                    Posicao = m.Posicao,
+                    Serie = m.Serie,
+                    NomeFantasiaUL = m.NomeFantasiaUL
+                }).ToList(),
+                ResultadosEsportivos = response.ListaResultadoEquipeEsportiva?.Select(r => new ResultadoEquipeEsportivaDto
+                {
+                    DiaSemana = r.DiaSemana,
+                    DataJogo = r.DataJogo,
+                    Campeonato = r.Campeonato,
+                    EquipeUm = r.EquipeUm,
+                    EquipeDois = r.EquipeDois,
+                    GolsEquipeUm = r.GolsEquipeUm,
+                    GolsEquipeDois = r.GolsEquipeDois
+                }).ToList(),
                 DataProximoConcurso = response.DataProximoConcurso,
                 NumeroConcursoProximo = response.NumeroConcursoProximo,
-                Observacao = response.Observacao,
-                Acumulado = response.Acumulado
+                Observacao = response.Observacao
             };
         }
+
 
         public async Task<CaixaResponseDto?> ObterUltimoAsync(string tipo)
         {
