@@ -1,0 +1,167 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7.2
+    container_name: loterias_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./Database/Redis:/data
+    networks:
+      - loterias-network
+
+  loterias_caixa_api:
+    build:
+      context: .
+      dockerfile: ./Loterias.CaixaApiService/Dockerfile
+    container_name: loterias-caixa-api
+    ports:
+      - "5002:8080"
+    depends_on:
+      - redis
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ENABLE_PROMETHEUS=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - loterias-network
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - loterias-network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - loterias-network
+      
+      
+  loterias-mongodb:
+    image: mongo:6.0
+    container_name: loterias-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./Database/MongoDB:/data/db
+    networks:
+      - loterias-network  
+  
+  loterias-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.24
+    container_name: loterias-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "9200:9200"
+    restart: always
+    networks:
+      - loterias-network
+      
+  loterias-graylog:
+    image: graylog/graylog:6.0
+    container_name: loterias_graylog
+    environment:
+      - GRAYLOG_NODE_ID_FILE=/usr/share/graylog/data/node-id
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918  # admin
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9009/
+      - GRAYLOG_ELASTICSEARCH_HOSTS=http://loterias-elasticsearch:9200
+      - GRAYLOG_MONGODB_URI=mongodb://loterias-mongodb:27017/graylog
+      - GRAYLOG_TIMEZONE=America/Fortaleza
+    depends_on:
+      loterias-elasticsearch:
+        condition: service_healthy
+      loterias-mongodb:
+        condition: service_started
+    ports:
+      - "9009:9000"
+    volumes:
+      - ./Database/Graylog/config:/usr/share/graylog/data/config    
+      - ./Database/Graylog-data:/usr/share/graylog/data
+      - ./Database/Graylog-journal:/usr/share/graylog/journal
+    restart: always
+    mem_limit: 2g
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9000/api/system/lbstatus | grep -q alive"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - loterias-network
+      
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: loterias_zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    volumes:
+      - ./Database/Zookeeper:/data
+    networks:
+      - loterias-network
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: loterias_kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_MS: 604800000   # 7 dias
+      KAFKA_BROKER_ID: 1
+    volumes:
+      - ./Database/Kafka:/kafka
+    depends_on:
+      - zookeeper
+    networks:
+      - loterias-network
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: loterias_kafdrop
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+      JVM_OPTS: "-Xms32M -Xmx64M"
+    depends_on:
+      - kafka
+    networks:
+      - loterias-network
+
+
+
+networks:
+  loterias-network:
+    driver: bridge
