@@ -107,10 +107,13 @@ namespace Loterias.CaixaApiService.Services
                 if (!string.IsNullOrEmpty(cached))
                 {
                     _logger.Info($"Cache hit for {cacheKey}/{tipo}");
+                    CacheHits.WithLabels(cacheKey, tipo).Inc();
                     return JsonConvert.DeserializeObject<CaixaResponseDto>(cached);
                 }
 
                 var result = await _client.ObterUltimoResultadoAsync(tipo);
+                CacheMisses.WithLabels(cacheKey, tipo).Inc();
+
                 if (result != null)
                 {
                     var dto = MapToDto(result);
@@ -136,10 +139,12 @@ namespace Loterias.CaixaApiService.Services
                 if (!string.IsNullOrEmpty(cached))
                 {
                     _logger.Info($"Cache hit for {concurso}/{tipo}");
+                    CacheHits.WithLabels(cacheKey, tipo).Inc();
                     return JsonConvert.DeserializeObject<CaixaResponseDto>(cached);
                 }
 
                 var result = await _client.ObterResultadoPorConcursoAsync(tipo, concurso);
+                CacheMisses.WithLabels(cacheKey, tipo).Inc();
                 if (result != null)
                 {
                     var dto = MapToDto(result);
