@@ -1,14 +1,17 @@
-namespace Loterias.Shared.Enums;
-
-public enum TipoJogo
+namespace Loterias.Shared.Enums
 {
-    MEGA_SENA,
-    LOTOFACIL,
-    QUINA,
-    LOTOMANIA,
-    TIMEMANIA,
-    DIA_DE_SORTE,
-    DUPLA_SENA,
-    SUPER_SETE,
-    MAIS_MILIONARIA
+    public enum TipoJogo
+    {
+        MEGA_SENA,
+        LOTOFACIL,
+        QUINA,
+        LOTOMANIA,
+        TIMEMANIA,
+        DIA_DE_SORTE,
+        DUPLA_SENA,
+        SUPER_SETE,
+        MAIS_MILIONARIA,
+        FEDERAL,
+        LOTECA
+    }
 }

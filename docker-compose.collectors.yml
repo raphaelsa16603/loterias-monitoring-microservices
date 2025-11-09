@@ -34,6 +34,7 @@ services:
     networks:
       - loterias-network
 
+    
   prometheus:
     image: prom/prometheus
     ports:
@@ -116,14 +117,13 @@ services:
     networks:
       - loterias-network
       
+
   zookeeper:
     image: wurstmeister/zookeeper
     container_name: loterias_zookeeper
     restart: always
     ports:
       - "2181:2181"
-    volumes:
-      - ./Database/Zookeeper:/data
     networks:
       - loterias-network
 
@@ -134,17 +134,23 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_LOG_RETENTION_MS: 604800000   # 7 dias
       KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_MS: 604800000  # 7 dias
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
     volumes:
       - ./Database/Kafka:/kafka
     depends_on:
       - zookeeper
     networks:
       - loterias-network
+
 
   kafdrop:
     image: obsidiandynamics/kafdrop
@@ -161,6 +167,27 @@ services:
       - loterias-network
 
 
+      
+  loterias_collector_daily:
+    build:
+      context: .
+      dockerfile: ./Loterias.CollectorDailyService/Dockerfile
+    container_name: loterias-collector-daily
+    restart: always
+    depends_on:
+      - loterias_caixa_api
+      - kafka
+      - loterias-graylog
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - GRAYLOG_HOST=loterias-graylog
+      - GRAYLOG_PORT=12201
+    networks:
+      - loterias-network
+    command: ["dotnet", "Loterias.CollectorDailyService.dll"]
+    
+    
+    
 
 networks:
   loterias-network:

@@ -16,7 +16,7 @@ public class SorteioServiceTests
         var mockRepo = new Mock<ISorteioRepository>();
         var mockCache = new Mock<ICacheService>();
         mockRepo.Setup(x => x.ObterPorNumeroAsync("MEGA_SENA", 1234))
-                .ReturnsAsync(new Sorteio { NumeroJogo = 1234, TipoJogo = "MEGA_SENA" });
+                .ReturnsAsync(new Sorteio { Concurso = 1234, TipoLoteria = "MEGA_SENA" });
 
         var service = new SorteioService(mockRepo.Object, mockCache.Object);
 
@@ -25,6 +25,6 @@ public class SorteioServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(1234, result?.NumeroJogo);
+        Assert.Equal(1234, result?.Concurso);
     }
 }

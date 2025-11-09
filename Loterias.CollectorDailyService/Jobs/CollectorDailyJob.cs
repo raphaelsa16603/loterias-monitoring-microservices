@@ -1,10 +1,19 @@
-namespace Loterias.CollectorDailyService.Jobs;
+using Loterias.CollectorDailyService.Services.Interfaces;
 
-public class CollectorDailyJob
+namespace Loterias.CollectorDailyService.Jobs
 {
-    public Task ExecutarAsync()
+    public class CollectorDailyJob
     {
-        // Lógica para coletar jogos do dia
-        return Task.CompletedTask;
+        private readonly ICollectorDailyService _collectorService;
+
+        public CollectorDailyJob(ICollectorDailyService collectorService)
+        {
+            _collectorService = collectorService;
+        }
+
+        public async Task ExecutarAsync()
+        {
+            await _collectorService.ExecutarAsync();
+        }
     }
 }

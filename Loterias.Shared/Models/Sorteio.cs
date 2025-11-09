@@ -10,29 +10,52 @@ namespace Loterias.Shared.Models
         [BsonId]
         public ObjectId Id { get; set; }
 
-        // 🔹 Identificadores básicos e versão da coleta
-        public int NumeroJogo { get; set; }
-        public DateTime DataJogo { get; set; }
-        public string TipoJogo { get; set; } = string.Empty;
-        public string JsonCompleto { get; set; } = string.Empty;
-
-        [BsonIgnoreIfNull] public string VersaoApiCaixa { get; set; } = string.Empty;
-        [BsonIgnoreIfNull] public string UrlFonteCaixa { get; set; } = string.Empty;
-        [BsonIgnoreIfNull] public DateTime? DataConsultaApi { get; set; } = DateTime.UtcNow;
-
-        // 🔹 Dados estruturados do sorteio
+        // 🔹 Identificação principal
+        [BsonElement("tipoLoteria")]
         public string TipoLoteria { get; set; } = string.Empty;
+
+        [BsonElement("concurso")]
         public int Concurso { get; set; }
+
+        [BsonElement("dataSorteio")]
         public DateTime DataSorteio { get; set; }
-        public List<int> NumerosSorteados { get; set; } = new();
+
+        [BsonElement("localSorteio")]
         public string LocalSorteio { get; set; } = string.Empty;
-        public List<Premiacao> Premiacoes { get; set; } = new();
+
+        // 🔹 Dados sorteados
+        [BsonElement("numerosSorteados")]
+        public List<string> NumerosSorteados { get; set; } = new();
+
+        [BsonElement("dezenasEmOrdem")]
+        public List<string> DezenasEmOrdem { get; set; } = new();
+
+        [BsonElement("dezenasSegundoSorteio")]
+        public List<string> DezenasSegundoSorteio { get; set; } = new();
+
+        [BsonElement("trevosSorteados")]
+        public List<string> TrevosSorteados { get; set; } = new();
+
+        [BsonElement("nomeTimeCoracaoMesSorte")]
+        public string NomeTimeCoracaoMesSorte { get; set; } = string.Empty;
+
+        // 🔹 Valores
         public decimal ArrecadacaoTotal { get; set; }
         public bool Acumulado { get; set; }
         public decimal ValorAcumuladoProxConcurso { get; set; }
-        public string FonteDados { get; set; } = string.Empty;
+        public decimal ValorEstimadoProximoConcurso { get; set; }
+
+        // 🔹 Premiações e extras
+        public List<Premiacao> Premiacoes { get; set; } = new();
+
+        public string Observacao { get; set; } = string.Empty;
+
+        // 🔹 Metadados internos
+        public string FonteDados { get; set; } = "Caixa";
         public DateTime DataColeta { get; set; } = DateTime.UtcNow;
         public DateTime DataProcessamento { get; set; } = DateTime.UtcNow;
-        public string HashIntegridade { get; set; } = string.Empty;
+
+        [BsonIgnoreIfNull]
+        public string JsonCompleto { get; set; } = string.Empty;
     }
 }

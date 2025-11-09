@@ -15,12 +15,12 @@ public class SorteioMongoRepository : ISorteioRepository
 
     public async Task<Sorteio?> ObterPorNumeroAsync(string tipoJogo, int numeroJogo)
     {
-        return await _collection.Find(s => s.TipoJogo == tipoJogo && s.NumeroJogo == numeroJogo).FirstOrDefaultAsync();
+        return await _collection.Find(s => s.TipoLoteria == tipoJogo && s.Concurso == numeroJogo).FirstOrDefaultAsync();
     }
 
     public async Task<Sorteio?> ObterPorDataAsync(string tipoJogo, DateTime dataJogo)
     {
-        return await _collection.Find(s => s.TipoJogo == tipoJogo && s.DataJogo == dataJogo).FirstOrDefaultAsync();
+        return await _collection.Find(s => s.TipoLoteria == tipoJogo && s.DataSorteio == dataJogo).FirstOrDefaultAsync();
     }
 
     public async Task InserirAsync(Sorteio sorteio)
