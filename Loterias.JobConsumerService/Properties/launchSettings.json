@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Loterias.JobConsumerService": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

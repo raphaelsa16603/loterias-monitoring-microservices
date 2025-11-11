@@ -65,6 +65,59 @@ services:
       - loterias-network
 
 
+
+  loterias-write-api:
+    build:
+      context: .
+      dockerfile: ./Loterias.WriteApiService/Dockerfile
+    container_name: loterias_write_api
+    restart: always
+    depends_on:
+      - loterias-mongodb
+      - redis
+      - kafka
+    ports:
+      - "5004:8080"   # 🔹 expõe o WriteApi em localhost:5004
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://0.0.0.0:8080"
+
+      # 🔹 Configurações MongoDB
+      Mongo__ConnectionString: "mongodb://loterias-mongodb:27017"
+      Mongo__DatabaseName: "loteriasdb"
+
+      # 🔹 Configurações Redis
+      Redis__Host: "redis"
+      Redis__Port: 6379
+      Redis__DefaultTTLMinutes: 360
+
+      # 🔹 Configurações Kafka
+      Kafka__BootstrapServers: "loterias_kafka:9093"
+      Kafka__BaseTopicName: "loterias"
+
+      # 🔹 Serilog + Graylog
+      Serilog__Using__0: "Serilog.Sinks.Console"
+      Serilog__Using__1: "Serilog.Sinks.Graylog"
+      Serilog__MinimumLevel: "Information"
+      Serilog__WriteTo__0__Name: "Console"
+      Serilog__WriteTo__1__Name: "Graylog"
+      Serilog__WriteTo__1__Args__hostnameOrAddress: "loterias-graylog"
+      Serilog__WriteTo__1__Args__port: 12201
+      Serilog__WriteTo__1__Args__transportType: "Udp"
+      Serilog__Enrich__0: "FromLogContext"
+      Serilog__Enrich__1: "WithMachineName"
+      Serilog__Properties__Application: "Loterias.WriteApiService"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - loterias-network
+
+
+
     
   prometheus:
     image: prom/prometheus
