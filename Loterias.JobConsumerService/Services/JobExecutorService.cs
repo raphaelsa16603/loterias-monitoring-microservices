@@ -36,10 +36,55 @@ namespace Loterias.JobConsumerService.Services
                 try
                 {
                     _logger.Info($"JobExecutorService - MessageProcessing - Processando mensagem de {topic}");
-                    // Transmite o JSON bruto da mensagem Kafka diretamente como corpo da requisição
-                    var content = new StringContent(message, System.Text.Encoding.UTF8, "application/json");
-                    var response = await _http.PostAsync($"{_writeApiBaseUrl}/api/v1/write/sorteios", content, token);
 
+                    // 🔹 Desserializa o JSON para objeto dinâmico
+                    var doc = System.Text.Json.JsonDocument.Parse(message);
+                    using var output = new System.IO.MemoryStream();
+                    using (var writer = new System.Text.Json.Utf8JsonWriter(output))
+                    {
+                        writer.WriteStartObject();
+
+                        // 🔹 Copia todas as propriedades, exceto "Id"
+                        foreach (var prop in doc.RootElement.EnumerateObject())
+                        {
+                            if (prop.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
+                                continue;
+
+                            // 🔹 Se for o array Premiacoes, remove também os Ids internos
+                            if (prop.Name.Equals("Premiacoes", StringComparison.OrdinalIgnoreCase) && prop.Value.ValueKind == System.Text.Json.JsonValueKind.Array)
+                            {
+                                writer.WritePropertyName(prop.Name);
+                                writer.WriteStartArray();
+
+                                foreach (var prem in prop.Value.EnumerateArray())
+                                {
+                                    writer.WriteStartObject();
+                                    foreach (var sub in prem.EnumerateObject())
+                                    {
+                                        if (sub.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
+                                            continue;
+                                        sub.WriteTo(writer);
+                                    }
+                                    writer.WriteEndObject();
+                                }
+
+                                writer.WriteEndArray();
+                            }
+                            else
+                            {
+                                prop.WriteTo(writer);
+                            }
+                        }
+
+                        writer.WriteEndObject();
+                    }
+
+                    // 🔹 Converte o JSON final sem IDs
+                    var jsonSemId = System.Text.Encoding.UTF8.GetString(output.ToArray());
+
+                    // 🔹 Envia para a Write API
+                    var content = new StringContent(jsonSemId, System.Text.Encoding.UTF8, "application/json");
+                    var response = await _http.PostAsync($"{_writeApiBaseUrl}/api/v1/write/sorteios", content, token);
 
                     if (response.IsSuccessStatusCode)
                         _logger.Info($"JobExecutorService - PersistenciaSucesso - Mensagem salva via WriteApi ({topic})");
@@ -50,6 +95,7 @@ namespace Loterias.JobConsumerService.Services
                 {
                     _logger.Error($"JobExecutorService - ErroProcessamento {ex.Message}", ex);
                 }
+
             }
         }
     }

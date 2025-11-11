@@ -8,7 +8,8 @@ namespace Loterias.Shared.Models
     public class Sorteio
     {
         [BsonId]
-        public ObjectId Id { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
 
         // 🔹 Identificação principal
         [BsonElement("tipoLoteria")]

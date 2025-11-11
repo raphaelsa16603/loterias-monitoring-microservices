@@ -32,16 +32,26 @@ namespace Loterias.WriteApiService.Repositories
 
         public async Task<Sorteio> UpsertAsync(Sorteio sorteio, CancellationToken ct = default)
         {
-            // filtro por chave natural (tipo + concurso)
+            // filtro pela chave natural
             var filter = Builders<Sorteio>.Filter.And(
                 Builders<Sorteio>.Filter.Eq(s => s.TipoLoteria, sorteio.TipoLoteria),
                 Builders<Sorteio>.Filter.Eq(s => s.Concurso, sorteio.Concurso)
             );
 
-            var options = new ReplaceOptions { IsUpsert = true };
-            await _collection.ReplaceOneAsync(filter, sorteio, options, ct);
+            // garanta que não enviaremos _id no $set
+            sorteio.Id = ObjectId.Empty;
+
+            var doc = sorteio.ToBsonDocument();
+            doc.Remove("_id"); // segurança extra, caso apareça
+
+            var update = new BsonDocument("$set", doc);
+
+            var options = new UpdateOptions { IsUpsert = true };
+
+            await _collection.UpdateOneAsync(filter, update, options, ct);
             return sorteio;
         }
+
 
         public async Task<IReadOnlyList<Sorteio>> ObterUltimosPorTipoAsync(string? tipo = null, int take = 10, CancellationToken ct = default)
         {
