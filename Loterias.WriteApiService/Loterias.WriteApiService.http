@@ -1,0 +1,6 @@
+@Loterias.WriteApiService_HostAddress = http://localhost:5081
+
+GET {{Loterias.WriteApiService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
