@@ -17,35 +17,47 @@ var builder = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((context, config) =>
     {
         config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+        config.AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true);
         config.AddEnvironmentVariables();
     })
     .ConfigureServices((context, services) =>
     {
         var configuration = context.Configuration;
 
-        // 🔹 HttpClient Factory (necessário p/ CaixaClientLib)
-        services.AddHttpClient();
 
-        // 🔹 Configurações do Kafka (com suporte a IOptions<KafkaSettings>)
+        // 🔹 HttpClients nomeados com BaseAddress configurada
+        services.AddHttpClient("CaixaApi", c =>
+        {
+            c.BaseAddress = new Uri("http://localhost:5002/");
+            c.Timeout = TimeSpan.FromSeconds(15);
+        });
+
+        services.AddHttpClient("QueryApi", c =>
+        {
+            c.BaseAddress = new Uri("http://localhost:5000/");
+            c.Timeout = TimeSpan.FromSeconds(15);
+        });
+
+
+        // 🔹 Configurações do Kafka (localhost em vez de container)
         services.Configure<KafkaSettings>(opts =>
         {
-            opts.BootstrapServers = "kafka:9092";
+            opts.BootstrapServers = "localhost:9092";
             opts.BaseTopicName = "loterias";
             opts.RetryCount = 3;
             opts.PublishTimeoutMs = 3000;
         });
 
-        // 🔹 Garante que serviços que usam KafkaSettings direto também funcionem
+        // 🔹 Garante compatibilidade para injeção direta
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<KafkaSettings>>().Value);
 
-        // 🔹 Logging estruturado com Graylog
+        // 🔹 Logging estruturado (Graylog local)
         services.AddSingleton<IStructuredLogger>(sp =>
         {
-            var graylogHost = "loterias-graylog";
+            var graylogHost = "localhost"; // antes: "loterias-graylog"
             var graylogPort = 12201;
             var serviceName = "Loterias.CollectorDailyService";
 
-            // 🚀 A classe StructuredLogger deve ter um construtor compatível
             return new StructuredLogger(graylogHost, graylogPort, serviceName);
         });
 
@@ -58,7 +70,7 @@ var builder = Host.CreateDefaultBuilder(args)
         // 🔹 Worker em background
         services.AddHostedService<CollectorDailyWorker>();
 
-        // 🔹 Métricas Prometheus (opcional, caso queira expor /metrics)
+        // 🔹 Métricas Prometheus (opcional)
         services.AddSingleton<ICollectorRegistry>(Metrics.DefaultRegistry);
     })
     .UseSerilog((context, config) =>
@@ -69,5 +81,8 @@ var builder = Host.CreateDefaultBuilder(args)
             .WriteTo.Console();
     });
 
-// 🔹 Inicia o worker como aplicação de console
-await builder.RunConsoleAsync();
+
+// ...toda a sua configuração acima
+var host = builder.Build();
+await host.RunAsync();
+
