@@ -64,14 +64,14 @@ namespace Loterias.CollectorDailyService.Services
                     }
 
                     // 🔹 Passo 2 — Verifica se o concurso já existe na Query API
-                    /*var existente = await _httpClientQuery.GetAsync(
+                    var existente = await _httpClientQuery.GetAsync(
                         $"api/v1/loterias/{tipo}/{dto.Concurso}", cancellationToken);
 
                     if (existente.IsSuccessStatusCode)
                     {
                         _logger.Info($"ℹ️ [{tipo}] Concurso {dto.Concurso} já existente — ignorado.");
                         continue;
-                    }*/
+                    }
 
                     // 🔹 Passo 3 — Mapeia o DTO para o modelo de domínio
                     var sorteio = MapearParaDominio(dto, tipo);

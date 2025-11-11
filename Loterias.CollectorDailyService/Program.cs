@@ -34,7 +34,7 @@ var builder = Host.CreateDefaultBuilder(args)
 
         services.AddHttpClient("QueryApi", c =>
         {
-            c.BaseAddress = new Uri("http://localhost:5000/");
+            c.BaseAddress = new Uri("http://localhost:5003/");
             c.Timeout = TimeSpan.FromSeconds(15);
         });
 

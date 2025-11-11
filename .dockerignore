@@ -30,3 +30,4 @@ README.md
 !.git/refs/heads/**
 **/appsettings.json
 !Loterias.CollectorDailyService/appsettings.json
+!Loterias.QueryApiService/appsettings.json

@@ -47,7 +47,12 @@ public class Program
         builder.Services.AddScoped<ISorteioRepository, SorteioMongoRepository>();
         builder.Services.AddScoped<ISorteioService, SorteioService>();
 
+
+        // ✅ Adicione esta linha
+        builder.Services.AddHealthChecks();
+
         var app = builder.Build();
+
 
         if (app.Environment.IsDevelopment())
         {
@@ -61,6 +66,8 @@ public class Program
 
         app.MapMetrics(); // Prometheus metrics endpoint // expõe /metrics
         app.MapHealthChecks("/healthz");
+
+
 
         app.Run();
     }
