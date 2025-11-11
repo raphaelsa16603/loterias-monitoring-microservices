@@ -36,8 +36,10 @@ namespace Loterias.JobConsumerService.Services
                 try
                 {
                     _logger.Info($"JobExecutorService - MessageProcessing - Processando mensagem de {topic}");
-                    var response = await _http.PostAsJsonAsync($"{_writeApiBaseUrl}/api/v1/write/sorteios",
-                                                               System.Text.Json.JsonSerializer.Deserialize<object>(message), token);
+                    // Transmite o JSON bruto da mensagem Kafka diretamente como corpo da requisição
+                    var content = new StringContent(message, System.Text.Encoding.UTF8, "application/json");
+                    var response = await _http.PostAsync($"{_writeApiBaseUrl}/api/v1/write/sorteios", content, token);
+
 
                     if (response.IsSuccessStatusCode)
                         _logger.Info($"JobExecutorService - PersistenciaSucesso - Mensagem salva via WriteApi ({topic})");

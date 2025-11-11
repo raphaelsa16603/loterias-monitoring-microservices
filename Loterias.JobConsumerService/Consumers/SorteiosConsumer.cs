@@ -41,6 +41,11 @@ namespace Loterias.JobConsumerService.Consumers
 
             _logger.Info("SorteiosConsumer - KafkaInit" +
                 $"Conectado ao Kafka ({_settings.BootstrapServers}) - Grupo: {_settings.GroupId}");
+
+            _logger.Info($"BootstrapServers: {_settings.BootstrapServers ?? "null"}");
+            _logger.Info($"GroupId: {_settings.GroupId ?? "null"}");
+            _logger.Info($"Topics: {(_settings.Topics == null ? "null" : _settings.Topics.Count.ToString())}");
+
         }
 
         /// <summary>

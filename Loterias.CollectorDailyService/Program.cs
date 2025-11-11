@@ -28,13 +28,13 @@ var builder = Host.CreateDefaultBuilder(args)
         // 🔹 HttpClients nomeados com BaseAddress configurada
         services.AddHttpClient("CaixaApi", c =>
         {
-            c.BaseAddress = new Uri("http://localhost:5002/");
+            c.BaseAddress = new Uri("http://localhost:5052/");
             c.Timeout = TimeSpan.FromSeconds(15);
         });
 
         services.AddHttpClient("QueryApi", c =>
         {
-            c.BaseAddress = new Uri("http://localhost:5003/");
+            c.BaseAddress = new Uri("http://localhost:5053/");
             c.Timeout = TimeSpan.FromSeconds(15);
         });
 

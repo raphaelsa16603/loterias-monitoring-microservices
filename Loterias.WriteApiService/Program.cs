@@ -52,13 +52,37 @@ builder.Services.AddScoped<RedisCacheHandler>();
 builder.Services.AddScoped<IWriteService, WriteService>();
 
 // 🔹 Logging e Kafka
-builder.Services.AddSingleton<IStructuredLogger, StructuredLogger>();
+// 🔹 Logging e Kafka
+builder.Services.AddSingleton<IStructuredLogger>(sp =>
+{
+    var graylogHost = "loterias-graylog";
+    var graylogPort = 12201;
+    var serviceName = "Loterias.WriteApiService";
+    return new StructuredLogger(graylogHost, graylogPort, serviceName);
+});
+
+// 🔹 Configuração Kafka
+builder.Services.Configure<KafkaSettings>(opts =>
+{
+    // usa o nome do container do Kafka no Docker, e não localhost
+    opts.BootstrapServers = "kafka:9092";
+    opts.BaseTopicName = "loterias";
+    opts.RetryCount = 3;
+    opts.PublishTimeoutMs = 3000;
+});
+
+// 🔹 Injeta KafkaSettings via Options
+builder.Services.AddSingleton(sp =>
+    sp.GetRequiredService<IOptions<KafkaSettings>>().Value);
+
+// ✅ REGISTRA O PRODUTOR KAFKA
 builder.Services.AddSingleton<IMessageProducer, KafkaProducer>();
 
 // 🔹 Controllers e Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
