@@ -213,3 +213,573 @@ LoteriasSolution/
 
 **Desenvolvido em .NET 8 com Kafka, MongoDB, Redis, Graylog e Docker.**  
 Arquitetura escalável, resiliente e 100% observável — pronta para análise, BI e predição de resultados futuros.
+
+---
+# 🧩 Loterias Monitoring Microservices  
+### Plataforma distribuída em .NET 8 com Kafka, MongoDB, Redis, Docker e Graylog  
+### Distributed Microservices Platform (PT/ES/EN)  
+---
+
+# 🇧🇷 **README – Português (Completo e Profissional)**
+
+# 🧩 Loterias Monitoring Microservices  
+Sistema distribuído e escalável em **.NET 8**, estruturado em **microsserviços independentes**, com comunicação assíncrona via **Apache Kafka**, armazenamento em **MongoDB**, cache em **Redis**, monitoramento avançado via **Graylog**, agendamento com **Hangfire** e execução containerizada via **Docker Compose**.
+
+---
+
+# 🚀 Sumário
+- Arquitetura Geral  
+- Microsserviços  
+- Fluxo de Dados  
+- Infraestrutura  
+- Execução Docker  
+- Estrutura do Repositório  
+- URLs Importantes  
+- Logs e Observabilidade  
+- Tecnologias  
+
+---
+
+# 🧱 Arquitetura Geral
+
+```
+[JobControlService] → Hangfire Scheduler
+        │
+        ▼
+[CollectorDaily] / [CollectorHistorical]
+        │
+        ▼
+[CaixaApiService] → Redis Cache → Kafka Topics
+        │                           │
+        ▼                           ▼
+                  [JobConsumerService] → WriteApiService → MongoDB
+                                                   │
+                                                   ▼
+                                                Redis
+                                                   │
+                                                   ▼
+                                           QueryApiService
+                                                   │
+                                                   ▼
+                                           MonitoringWebApp
+
+Logs:
+[Serviços .NET] → LoggingApiCommand → Kafka(logs) → JobConsumerLogging
+                                         └────→ Graylog → Elasticsearch
+```
+
+---
+
+# 🧩 Microsserviços
+
+| Serviço | Descrição |
+|--------|-----------|
+| **CaixaApiService** | Proxy para API da Caixa com Redis Cache |
+| **QueryApiService** | Leitura (CQRS – somente leitura) |
+| **WriteApiService** | Escrita e atualização no MongoDB |
+| **CollectorDailyService** | Coleta diária automatizada |
+| **CollectorHistoricalService** | Atualização histórica completa |
+| **JobControlService** | Orquestração via Hangfire |
+| **JobConsumerService** | Consumo Kafka e persistência |
+| **LoggingApiCommandService** | Ingestão centralizada de logs |
+| **LoggingApiQueryService** | Consulta logs no MongoDB |
+| **JobConsumerLoggingService** | Kafka(logs) → MongoDB |
+| **MonitoringWebApp** | Painel completo de monitoramento |
+
+---
+
+# 🔄 Fluxo de Dados
+
+## 1️⃣ Coleta
+- Collectors → CaixaApiService  
+- Validação no QueryApiService  
+- Publicação no Kafka  
+
+## 2️⃣ Processamento
+- JobConsumer → gravação via WriteApi → MongoDB  
+- Invalidação/atualização de cache Redis  
+
+## 3️⃣ Consulta
+- QueryApi retorna via cache Redis  
+
+## 4️⃣ Logs
+- .NET Services → LoggingApiCommand → Kafka(logs) e Graylog  
+- JobConsumerLogging grava no MongoDB  
+
+---
+
+# 🏗️ Infraestrutura
+
+| Componente | Porta |
+|------------|-------|
+| MongoDB | 27017 |
+| Redis | 6379 |
+| Kafka | 9092 |
+| Zookeeper | 2181 |
+| Kafdrop | 9000 |
+| Graylog | 9009 |
+| Elasticsearch | 9200 |
+
+---
+
+# 🐳 Execução Docker
+
+Subir toda a stack:
+
+```bash
+docker compose -f docker-compose.collectors.sem.job.yml up -d --build
+```
+
+Verificar:
+
+```bash
+docker ps
+```
+
+Logs:
+
+```bash
+docker logs -f loterias_query_api
+```
+
+---
+
+# 🌐 URLs Importantes
+
+| Serviço | URL |
+|---------|------|
+| Query API | http://localhost:5000 |
+| Write API | http://localhost:5001 |
+| Caixa API | http://localhost:5002 |
+| Hangfire | http://localhost:5003/hangfire |
+| Logging Command | http://localhost:5010 |
+| Logging Query | http://localhost:5011 |
+| Monitoring WebApp | http://localhost:5012 |
+| Kafdrop | http://localhost:9000 |
+| Graylog | http://localhost:9009 |
+
+---
+
+# 📂 Estrutura do Repositório
+
+```
+LoteriasSolution/
+├── src/
+│   ├── Core/
+│   ├── APIs/
+│   ├── Jobs/
+│   └── Web/
+│
+├── Database/
+├── docker-compose.collectors.sem.job.yml
+└── README.md
+```
+
+---
+
+# 📊 Observabilidade
+
+```
+Serviços .NET → LoggingApiCommand →
+     ├→ Kafka (loterias.logs)
+     └→ Graylog (GELF) → Elasticsearch
+```
+
+Graylog traz dashboards para:
+- Falhas de jobs  
+- Erros Kafka  
+- Erros MongoDB e Redis  
+- Métricas de execução  
+- Monitoramento Hangfire  
+
+---
+
+# ⚡ Tecnologias
+- .NET 8  
+- Apache Kafka  
+- MongoDB  
+- Redis  
+- Graylog 6  
+- Elasticsearch 8  
+- Docker Compose  
+- Hangfire  
+
+---
+# 🧩 Loterias Monitoring Microservices  
+### Plataforma distribuida en .NET 8 con Kafka, MongoDB, Redis, Docker y Graylog  
+### Distributed Microservices Platform (PT/ES/EN)  
+---
+
+# 🇧🇷 **README – Español (Completo y Profesional)**
+
+# 🧩 Loterias Monitoring Microservices  
+Sistema distribuido y escalable en **.NET 8**, estruturado em **microsserviços independentes**, com comunicação assíncrona via **Apache Kafka**, armazenamento em **MongoDB**, cache em **Redis**, monitoramento avançado via **Graylog**, agendamento com **Hangfire** e execução containerizada via **Docker Compose**.
+
+---
+
+# 🚀 Sumário
+- Arquitectura General  
+- Microservicios  
+- Flujo de Datos  
+- Infraestructura  
+- Ejecución Docker  
+- Estructura del Repositorio  
+- URLs Importantes  
+- Logs e Observabilidad  
+- Tecnologías  
+
+---
+
+# 🧱 Arquitectura General
+
+```
+[JobControlService] → Hangfire Scheduler
+        │
+        ▼
+[CollectorDaily] / [CollectorHistorical]
+        │
+        ▼
+[CaixaApiService] → Redis Cache → Kafka Topics
+        │                           │
+        ▼                           ▼
+                  [JobConsumerService] → WriteApiService → MongoDB
+                                                   │
+                                                   ▼
+                                                Redis
+                                                   │
+                                                   ▼
+                                           QueryApiService
+                                                   │
+                                                   ▼
+                                           MonitoringWebApp
+
+Logs:
+[Servicios .NET] → LoggingApiCommand → Kafka(logs) → JobConsumerLogging
+                                         └────→ Graylog → Elasticsearch
+```
+
+---
+
+# 🧩 Microservicios
+
+| Servicio | Descripción |
+|--------|-----------|
+| **CaixaApiService** | Proxy para API da Caixa com Redis Cache |
+| **QueryApiService** | Leitura (CQRS – somente leitura) |
+| **WriteApiService** | Escrita e atualização no MongoDB |
+| **CollectorDailyService** | Recolección diária automatizada |
+| **CollectorHistoricalService** | Atualização histórica completa |
+| **JobControlService** | Orquestração via Hangfire |
+| **JobConsumerService** | Consumo Kafka e persistência |
+| **LoggingApiCommandService** | Ingestão centralizada de logs |
+| **LoggingApiQueryService** | Consulta logs no MongoDB |
+| **JobConsumerLoggingService** | Kafka(logs) → MongoDB |
+| **MonitoringWebApp** | Painel completo de monitoramento |
+
+---
+
+# 🔄 Flujo de Datos
+
+## 1️⃣ Recolección
+- Collectors → CaixaApiService  
+- Validação no QueryApiService  
+- Publicação no Kafka  
+
+## 2️⃣ Procesamiento
+- JobConsumer → gravação via WriteApi → MongoDB  
+- Invalidação/atualização de cache Redis  
+
+## 3️⃣ Consulta
+- QueryApi retorna via cache Redis  
+
+## 4️⃣ Logs
+- .NET Services → LoggingApiCommand → Kafka(logs) e Graylog  
+- JobConsumerLogging grava no MongoDB  
+
+---
+
+# 🏗️ Infraestructura
+
+| Componente | Porta |
+|------------|-------|
+| MongoDB | 27017 |
+| Redis | 6379 |
+| Kafka | 9092 |
+| Zookeeper | 2181 |
+| Kafdrop | 9000 |
+| Graylog | 9009 |
+| Elasticsearch | 9200 |
+
+---
+
+# 🐳 Ejecución Docker
+
+Subir toda a stack:
+
+```bash
+docker compose -f docker-compose.collectors.sem.job.yml up -d --build
+```
+
+Verificar:
+
+```bash
+docker ps
+```
+
+Logs:
+
+```bash
+docker logs -f loterias_query_api
+```
+
+---
+
+# 🌐 URLs Importantes
+
+| Servicio | URL |
+|---------|------|
+| Query API | http://localhost:5000 |
+| Write API | http://localhost:5001 |
+| Caixa API | http://localhost:5002 |
+| Hangfire | http://localhost:5003/hangfire |
+| Logging Command | http://localhost:5010 |
+| Logging Query | http://localhost:5011 |
+| Monitoring WebApp | http://localhost:5012 |
+| Kafdrop | http://localhost:9000 |
+| Graylog | http://localhost:9009 |
+
+---
+
+# 📂 Estructura del Repositorio
+
+```
+LoteriasSolution/
+├── src/
+│   ├── Core/
+│   ├── APIs/
+│   ├── Jobs/
+│   └── Web/
+│
+├── Database/
+├── docker-compose.collectors.sem.job.yml
+└── README.md
+```
+
+---
+
+# 📊 Observabilidad
+
+```
+Servicios .NET → LoggingApiCommand →
+     ├→ Kafka (loterias.logs)
+     └→ Graylog (GELF) → Elasticsearch
+```
+
+Graylog traz dashboards para:
+- Falhas de jobs  
+- Erros Kafka  
+- Erros MongoDB e Redis  
+- Métricas de execução  
+- Monitoramento Hangfire  
+
+---
+
+# ⚡ Tecnologías
+- .NET 8  
+- Apache Kafka  
+- MongoDB  
+- Redis  
+- Graylog 6  
+- Elasticsearch 8  
+- Docker Compose  
+- Hangfire  
+
+---
+# 🧩 Loterias Monitoring Microservices  
+### Distributed platform in .NET 8 with Kafka, MongoDB, Redis, Docker and Graylog  
+### Distributed Microservices Platform (PT/ES/EN)  
+---
+
+# 🇧🇷 **README – English (Complete and Professional)**
+
+# 🧩 Loterias Monitoring Microservices  
+Distributed and scalable system in **.NET 8**, estruturado em **microsserviços independentes**, com comunicação assíncrona via **Apache Kafka**, armazenamento em **MongoDB**, cache em **Redis**, monitoramento avançado via **Graylog**, agendamento com **Hangfire** e execução containerizada via **Docker Compose**.
+
+---
+
+# 🚀 Sumário
+- Architecture Overview  
+- Microservices  
+- Data Flow  
+- Infrastructure  
+- Docker Execution  
+- Repository Structure  
+- Important URLs  
+- Logs e Observability  
+- Technologies  
+
+---
+
+# 🧱 Architecture Overview
+
+```
+[JobControlService] → Hangfire Scheduler
+        │
+        ▼
+[CollectorDaily] / [CollectorHistorical]
+        │
+        ▼
+[CaixaApiService] → Redis Cache → Kafka Topics
+        │                           │
+        ▼                           ▼
+                  [JobConsumerService] → WriteApiService → MongoDB
+                                                   │
+                                                   ▼
+                                                Redis
+                                                   │
+                                                   ▼
+                                           QueryApiService
+                                                   │
+                                                   ▼
+                                           MonitoringWebApp
+
+Logs:
+[Services .NET] → LoggingApiCommand → Kafka(logs) → JobConsumerLogging
+                                         └────→ Graylog → Elasticsearch
+```
+
+---
+
+# 🧩 Microservices
+
+| Service | Description |
+|--------|-----------|
+| **CaixaApiService** | Proxy para API da Caixa com Redis Cache |
+| **QueryApiService** | Leitura (CQRS – somente leitura) |
+| **WriteApiService** | Escrita e atualização no MongoDB |
+| **CollectorDailyService** | Collection diária automatizada |
+| **CollectorHistoricalService** | Atualização histórica completa |
+| **JobControlService** | Orquestração via Hangfire |
+| **JobConsumerService** | Consumo Kafka e persistência |
+| **LoggingApiCommandService** | Ingestão centralizada de logs |
+| **LoggingApiQueryService** | Query logs no MongoDB |
+| **JobConsumerLoggingService** | Kafka(logs) → MongoDB |
+| **MonitoringWebApp** | Painel completo de monitoramento |
+
+---
+
+# 🔄 Data Flow
+
+## 1️⃣ Collection
+- Collectors → CaixaApiService  
+- Validação no QueryApiService  
+- Publicação no Kafka  
+
+## 2️⃣ Processing
+- JobConsumer → gravação via WriteApi → MongoDB  
+- Invalidação/atualização de cache Redis  
+
+## 3️⃣ Query
+- QueryApi retorna via cache Redis  
+
+## 4️⃣ Logs
+- .NET Services → LoggingApiCommand → Kafka(logs) e Graylog  
+- JobConsumerLogging grava no MongoDB  
+
+---
+
+# 🏗️ Infrastructure
+
+| Componente | Porta |
+|------------|-------|
+| MongoDB | 27017 |
+| Redis | 6379 |
+| Kafka | 9092 |
+| Zookeeper | 2181 |
+| Kafdrop | 9000 |
+| Graylog | 9009 |
+| Elasticsearch | 9200 |
+
+---
+
+# 🐳 Docker Execution
+
+Subir toda a stack:
+
+```bash
+docker compose -f docker-compose.collectors.sem.job.yml up -d --build
+```
+
+Verificar:
+
+```bash
+docker ps
+```
+
+Logs:
+
+```bash
+docker logs -f loterias_query_api
+```
+
+---
+
+# 🌐 Important URLs
+
+| Service | URL |
+|---------|------|
+| Query API | http://localhost:5000 |
+| Write API | http://localhost:5001 |
+| Caixa API | http://localhost:5002 |
+| Hangfire | http://localhost:5003/hangfire |
+| Logging Command | http://localhost:5010 |
+| Logging Query | http://localhost:5011 |
+| Monitoring WebApp | http://localhost:5012 |
+| Kafdrop | http://localhost:9000 |
+| Graylog | http://localhost:9009 |
+
+---
+
+# 📂 Repository Structure
+
+```
+LoteriasSolution/
+├── src/
+│   ├── Core/
+│   ├── APIs/
+│   ├── Jobs/
+│   └── Web/
+│
+├── Database/
+├── docker-compose.collectors.sem.job.yml
+└── README.md
+```
+
+---
+
+# 📊 Observability
+
+```
+Services .NET → LoggingApiCommand →
+     ├→ Kafka (loterias.logs)
+     └→ Graylog (GELF) → Elasticsearch
+```
+
+Graylog traz dashboards para:
+- Falhas de jobs  
+- Erros Kafka  
+- Erros MongoDB e Redis  
+- Métricas de execução  
+- Monitoramento Hangfire  
+
+---
+
+# ⚡ Technologies
+- .NET 8  
+- Apache Kafka  
+- MongoDB  
+- Redis  
+- Graylog 6  
+- Elasticsearch 8  
+- Docker Compose  
+- Hangfire  
